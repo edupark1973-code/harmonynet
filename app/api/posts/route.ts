@@ -1,0 +1,61 @@
+import { NextResponse } from 'next/server';
+
+const WP_API_BASE = process.env.NEXT_PUBLIC_WP_API_URL || 'https://huss.harmonynet.kr/wp-json/wp/v2';
+
+const BROWSER_HEADERS: Record<string, string> = {
+  'Accept': 'application/json, text/plain, */*',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+  'Referer': 'https://harmonynet.kr',
+  'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+  'Cache-Control': 'no-cache',
+};
+
+/**
+ * Next.js API Route Proxy (/api/posts)
+ * Cafe24 WAF / cupid.js 봇 방화벽 차단을 우회하기 위한 Server-side Proxy 엔드포인트
+ */
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const perPage = searchParams.get('per_page') || '13';
+  const page = searchParams.get('page') || '1';
+  const category = searchParams.get('category') || searchParams.get('categories') || '';
+  const search = searchParams.get('search') || '';
+
+  let targetUrl = `${WP_API_BASE}/posts?_embed&per_page=${perPage}&page=${page}`;
+  if (category) targetUrl += `&categories=${category}`;
+  if (search) targetUrl += `&search=${encodeURIComponent(search)}`;
+
+  try {
+    const res = await fetch(targetUrl, {
+      headers: BROWSER_HEADERS,
+      next: { revalidate: 60 },
+    });
+
+    const contentType = res.headers.get('content-type') || '';
+
+    if (!res.ok || !contentType.includes('application/json')) {
+      const htmlText = await res.text();
+      const titleMatch = htmlText.match(/<title>(.*?)<\/title>/i);
+      const title = titleMatch ? titleMatch[1] : 'WAF Blocked Page';
+
+      return NextResponse.json(
+        {
+          error: `Cafe24 WAF/Security Blocked (${res.status} ${res.statusText})`,
+          details: title,
+          targetUrl,
+        },
+        { status: res.status >= 400 ? res.status : 502 }
+      );
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+      },
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Proxy fetch error';
+    return NextResponse.json({ error: message, targetUrl }, { status: 500 });
+  }
+}
