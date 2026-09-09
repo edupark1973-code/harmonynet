@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
+import SiteNav from '@/components/SiteNav';
 
 const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed&per_page=15';
 
@@ -126,34 +127,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 3. 경향신문 GNB (Global Navigation Bar) */}
-        <nav className="border-t-2 border-red-700 bg-white text-neutral-900 shadow-sm dark:border-red-600 dark:bg-neutral-900 dark:text-white">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 font-semibold">
-            <div className="flex items-center space-x-1 overflow-x-auto text-base py-1">
-              <Link href="/" className="px-3 py-2 text-red-700 font-bold dark:text-red-500 border-b-2 border-red-700 dark:border-red-500">
-                홈
-              </Link>
-              <Link href="/category/region" className="px-3.5 py-2 hover:text-red-700 dark:hover:text-red-400 transition">
-                정치/사회
-              </Link>
-              <Link href="/category/startup" className="px-3.5 py-2 hover:text-red-700 dark:hover:text-red-400 transition">
-                경제/창업
-              </Link>
-              <Link href="/category/opinion" className="px-3.5 py-2 hover:text-red-700 dark:hover:text-red-400 transition">
-                오피니언
-              </Link>
-              <Link href="/category/support" className="px-3.5 py-2 hover:text-red-700 dark:hover:text-red-400 transition">
-                정부지원
-              </Link>
-              <Link href="/category/culture" className="px-3.5 py-2 hover:text-red-700 dark:hover:text-red-400 transition">
-                문화/스포츠
-              </Link>
-            </div>
-            <div className="hidden lg:block text-xs text-neutral-500">
-              <span className="font-bold text-neutral-900 dark:text-white">HOT</span> | 대전 스타트업 생태계 리포트
-            </div>
-          </div>
-        </nav>
+        <SiteNav />
       </header>
 
       {/* 4. 메인 콘텐츠 영역 (경향신문 3단 계층 레이아웃) */}

@@ -5,12 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
+import SiteNav from '@/components/SiteNav';
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
 }
-
-const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed&per_page=15';
 
 export default function SearchPage({ searchParams }: SearchPageProps) {
   const resolvedSearchParams = use(searchParams);
@@ -24,9 +23,8 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
     async function loadSearchPosts() {
       try {
         setLoading(true);
-        const res = await fetch(WP_DIRECT_URL, {
-          headers: { 'Accept': 'application/json, text/plain, */*' },
-        });
+        const endpoint = query ? `/api/posts?search=${encodeURIComponent(query)}&per_page=20` : '/api/posts?per_page=20';
+        const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data: WPPost[] = await res.json();
         if (isMounted) {
@@ -67,6 +65,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
             하모니<span className="text-red-700 dark:text-red-500">넷</span>
           </Link>
         </div>
+        <SiteNav />
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-8">

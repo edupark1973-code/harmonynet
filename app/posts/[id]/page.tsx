@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
+import SiteNav from '@/components/SiteNav';
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
@@ -138,6 +139,7 @@ export default function PostPage({ params }: PostPageProps) {
             </button>
           </div>
         </div>
+        <SiteNav />
       </header>
 
       {/* 3. 본문 레이아웃 (기사 + 사이드바) */}

@@ -24,3 +24,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.wp-content { font-size: 15px; line-height: 1.8; }
+.wp-content h2, .wp-content h3 { margin: 1.75rem 0 .75rem; font-family: Georgia, serif; font-weight: 800; }
+.wp-content img { max-width: 100%; height: auto; }
+.wp-content a { color: #b91c1c; text-decoration: underline; text-underline-offset: 3px; }
+.wp-content ul { margin: 1rem 0; padding-left: 1.25rem; }
+.wp-content .wp-show-posts, .wp-content .elementor-posts-container { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+.wp-content article { border-bottom: 1px solid #e5e5e5; padding-bottom: 1.25rem; }
+@media (max-width: 768px) {
+  .wp-content { font-size: 14px; }
+  .wp-content .wp-show-posts, .wp-content .elementor-posts-container { grid-template-columns: 1fr; }
+}

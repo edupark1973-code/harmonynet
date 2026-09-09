@@ -5,20 +5,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
+import SiteNav from '@/components/SiteNav';
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
 const CATEGORY_NAMES: Record<string, string> = {
-  region: '정치/사회',
-  startup: '경제/창업',
-  opinion: '오피니언',
-  support: '정부지원',
-  culture: '문화/스포츠',
+  huss: 'HUSS 소식',
+  local: '로컬 소식',
 };
 
-const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed&per_page=15';
+const CATEGORY_IDS: Record<string, number> = { huss: 72, local: 25 };
 
 export default function CategoryPage({ params }: CategoryPageProps) {
   const resolvedParams = use(params);
@@ -33,9 +31,9 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     async function loadCategoryPosts() {
       try {
         setLoading(true);
-        const res = await fetch(WP_DIRECT_URL, {
-          headers: { 'Accept': 'application/json, text/plain, */*' },
-        });
+        const categoryId = CATEGORY_IDS[slug];
+        const endpoint = categoryId ? `/api/posts?category=${categoryId}&per_page=20` : '/api/posts?per_page=20';
+        const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data: WPPost[] = await res.json();
         if (isMounted) {
@@ -95,29 +93,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           </form>
         </div>
 
-        {/* 3. GNB (Global Navigation Bar) - 활성화 메뉴 강조 */}
-        <nav className="border-t-2 border-red-700 bg-white text-neutral-900 shadow-sm dark:border-red-600 dark:bg-neutral-900 dark:text-white">
-          <div className="mx-auto flex max-w-7xl items-center px-4 font-semibold text-base py-1 overflow-x-auto space-x-1">
-            <Link href="/" className="px-3.5 py-2 hover:text-red-700 transition">
-              홈
-            </Link>
-            <Link href="/category/region" className={`px-3.5 py-2 transition ${slug === 'region' ? 'text-red-700 font-bold border-b-2 border-red-700 dark:text-red-500 dark:border-red-500' : 'hover:text-red-700'}`}>
-              정치/사회
-            </Link>
-            <Link href="/category/startup" className={`px-3.5 py-2 transition ${slug === 'startup' ? 'text-red-700 font-bold border-b-2 border-red-700 dark:text-red-500 dark:border-red-500' : 'hover:text-red-700'}`}>
-              경제/창업
-            </Link>
-            <Link href="/category/opinion" className={`px-3.5 py-2 transition ${slug === 'opinion' ? 'text-red-700 font-bold border-b-2 border-red-700 dark:text-red-500 dark:border-red-500' : 'hover:text-red-700'}`}>
-              오피니언
-            </Link>
-            <Link href="/category/support" className={`px-3.5 py-2 transition ${slug === 'support' ? 'text-red-700 font-bold border-b-2 border-red-700 dark:text-red-500 dark:border-red-500' : 'hover:text-red-700'}`}>
-              정부지원
-            </Link>
-            <Link href="/category/culture" className={`px-3.5 py-2 transition ${slug === 'culture' ? 'text-red-700 font-bold border-b-2 border-red-700 dark:text-red-500 dark:border-red-500' : 'hover:text-red-700'}`}>
-              문화/스포츠
-            </Link>
-          </div>
-        </nav>
+        <SiteNav />
       </header>
 
       {/* 4. 카테고리 헤더 타이틀 */}
@@ -237,7 +213,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                       </span>
                       <div className="flex-1">
                         <h4 className="line-clamp-2 text-xs font-bold leading-snug text-neutral-800 group-hover:text-red-700 dark:text-neutral-200">
-                          <Link href={`/posts/${post.slug}`}>{post.title}</Link>
+                          <Link href={`/posts/${post.id}`}>{post.title}</Link>
                         </h4>
                       </div>
                     </div>
