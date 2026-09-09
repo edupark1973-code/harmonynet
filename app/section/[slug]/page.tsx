@@ -19,7 +19,7 @@ export default function SectionPage({ params }: { params: Promise<{ slug: string
 
   useEffect(() => {
     let active = true;
-    fetch(`/api/pages?slug=${encodeURIComponent(slug)}`)
+    fetch(`https://huss.harmonynet.kr/wp-json/wp/v2/pages?slug=${encodeURIComponent(slug)}`)
       .then((response) => response.ok ? response.json() : [])
       .then((data: WPPage[]) => { if (active) setPage(data[0] || null); })
       .finally(() => { if (active) setLoading(false); });

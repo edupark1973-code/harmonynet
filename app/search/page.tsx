@@ -7,6 +7,8 @@ import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
 import SiteNav from '@/components/SiteNav';
 
+const WP_POSTS_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts';
+
 interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
 }
@@ -23,7 +25,9 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
     async function loadSearchPosts() {
       try {
         setLoading(true);
-        const endpoint = query ? `/api/posts?search=${encodeURIComponent(query)}&per_page=20` : '/api/posts?per_page=20';
+        const endpoint = query
+          ? `${WP_POSTS_URL}?_embed=1&search=${encodeURIComponent(query)}&per_page=20`
+          : `${WP_POSTS_URL}?_embed=1&per_page=20`;
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data: WPPost[] = await res.json();

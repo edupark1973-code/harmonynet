@@ -7,6 +7,8 @@ import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
 import SiteNav from '@/components/SiteNav';
 
+const WP_POSTS_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts';
+
 interface PostPageProps {
   params: Promise<{ id: string }>;
 }
@@ -30,10 +32,10 @@ export default function PostPage({ params }: PostPageProps) {
         setError(null);
 
         const isNumericId = /^\d+$/.test(postIdOrSlug);
-        let targetUrl = `/api/posts?id=${encodeURIComponent(postIdOrSlug)}`;
+        let targetUrl = `${WP_POSTS_URL}?_embed=1&include=${encodeURIComponent(postIdOrSlug)}&per_page=1`;
 
         if (!isNumericId) {
-          targetUrl = `/api/posts?slug=${encodeURIComponent(decodeURIComponent(postIdOrSlug))}&per_page=1`;
+          targetUrl = `${WP_POSTS_URL}?_embed=1&slug=${encodeURIComponent(decodeURIComponent(postIdOrSlug))}&per_page=1`;
         }
 
         const res = await fetch(targetUrl);
@@ -52,7 +54,7 @@ export default function PostPage({ params }: PostPageProps) {
         }
 
         // 관련 기사 및 인기 랭킹용 기사 5건 추가 페치
-        const listRes = await fetch('/api/posts?per_page=6');
+        const listRes = await fetch(`${WP_POSTS_URL}?_embed=1&per_page=6`);
         let listData: WPPost[] = [];
         if (listRes.ok) {
           listData = await listRes.json();

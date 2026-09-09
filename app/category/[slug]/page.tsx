@@ -17,6 +17,7 @@ const CATEGORY_NAMES: Record<string, string> = {
 };
 
 const CATEGORY_IDS: Record<string, number> = { huss: 72, local: 25 };
+const WP_POSTS_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts';
 
 export default function CategoryPage({ params }: CategoryPageProps) {
   const resolvedParams = use(params);
@@ -32,7 +33,9 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       try {
         setLoading(true);
         const categoryId = CATEGORY_IDS[slug];
-        const endpoint = categoryId ? `/api/posts?category=${categoryId}&per_page=20` : '/api/posts?per_page=20';
+        const endpoint = categoryId
+          ? `${WP_POSTS_URL}?_embed=1&categories=${categoryId}&per_page=20`
+          : `${WP_POSTS_URL}?_embed=1&per_page=20`;
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const data: WPPost[] = await res.json();
