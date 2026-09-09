@@ -26,9 +26,11 @@ export async function GET(request: Request) {
   let targetUrl: string;
 
   if (id && /^\d+$/.test(id)) {
-    targetUrl = `${WP_API_BASE}/posts/${id}?_embed`;
+    // Cafe24 WAF가 `/posts/{id}?_embed` 단건 요청을 차단하는 경우가 있어
+    // 동일한 결과를 반환하는 컬렉션의 include 쿼리를 사용한다.
+    targetUrl = `${WP_API_BASE}/posts?_embed=1&include=${id}&per_page=1`;
   } else {
-    targetUrl = `${WP_API_BASE}/posts?_embed&per_page=${perPage}&page=${page}`;
+    targetUrl = `${WP_API_BASE}/posts?_embed=1&per_page=${perPage}&page=${page}`;
     if (category) targetUrl += `&categories=${encodeURIComponent(category)}`;
     if (search) targetUrl += `&search=${encodeURIComponent(search)}`;
     if (slug) targetUrl += `&slug=${encodeURIComponent(slug)}`;
