@@ -1,6 +1,7 @@
-import { WPPost, NormalizedPost } from '@/types/post';
+import { WPPost, NormalizedPost, WPCategory } from '@/types/post';
 
-export const WP_API_BASE = process.env.NEXT_PUBLIC_WP_API_URL || 'https://huss.harmonynet.kr/wp-json/wp/v2';
+const DEFAULT_WP_API = 'https://huss.harmonynet.kr/wp-json/wp/v2';
+export const WP_API_BASE = (process.env.NEXT_PUBLIC_WP_API_URL || DEFAULT_WP_API).replace(/\/+$/, '');
 export const DEFAULT_FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" fill="%23f3f4f6"><rect width="100%" height="100%" fill="%23e5e7eb"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="600" fill="%236b7280">하모니넷 HARMONYNET</text></svg>';
 
 export function stripHtml(htmlString: string): string {
@@ -65,26 +66,76 @@ export function normalizePost(
   };
 }
 
-export async function fetchPosts(perPage = 13): Promise<{ posts: NormalizedPost[]; error?: string }> {
-  const url = `${WP_API_BASE}/posts?_embed&per_page=${perPage}`;
+/**
+ * 안전한 WP API 호출 공통 함수 (JSON 검증 및 HTML 예외 방어)
+ */
+async function fetchWpApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${WP_API_BASE}${cleanEndpoint}`;
 
+  const headers = {
+    'Accept': 'application/json',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Next.js Harmonynet Client/1.0',
+    ...(options.headers || {}),
+  };
+
+  const res = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  const contentType = res.headers.get('content-type') || '';
+
+  if (!res.ok) {
+    let errorDetail = `HTTP ${res.status} ${res.statusText}`;
+    if (contentType.includes('text/html')) {
+      const htmlText = await res.text();
+      const titleMatch = htmlText.match(/<title>(.*?)<\/title>/i);
+      errorDetail += ` (HTML Response: ${titleMatch ? titleMatch[1] : 'Non-JSON page returned'})`;
+    }
+    throw new Error(`[WP API Error] ${errorDetail} - Target URL: ${url}`);
+  }
+
+  if (!contentType.includes('application/json')) {
+    const rawText = await res.text();
+    const snippet = rawText.substring(0, 100).replace(/\s+/g, ' ');
+    throw new Error(`[WP API Non-JSON] Target URL (${url}) returned Content-Type "${contentType}" instead of JSON. Output snippet: "${snippet}"`);
+  }
+
+  return await res.json();
+}
+
+/**
+ * 최신 기사 목록 페치
+ */
+export async function fetchPosts(perPage = 13): Promise<{ posts: NormalizedPost[]; error?: string }> {
   try {
-    const res = await fetch(url, {
+    const data = await fetchWpApi<WPPost[]>(`/posts?_embed&per_page=${perPage}`, {
       next: { revalidate: 60 },
-      headers: {
-        'Accept': 'application/json',
-      },
     });
 
-    if (!res.ok) {
-      throw new Error(`WP API HTTP error! status: ${res.status}`);
+    if (!Array.isArray(data)) {
+      throw new Error('WP API result is not an array.');
     }
 
-    const data: WPPost[] = await res.json();
     return { posts: data.map((post) => normalizePost(post)) };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Failed to fetch posts from Harmonynet WP API:', message);
     return { posts: [], error: message };
+  }
+}
+
+/**
+ * 카테고리 목록 페치
+ */
+export async function fetchCategories(): Promise<WPCategory[]> {
+  try {
+    return await fetchWpApi<WPCategory[]>('/categories?per_page=20', {
+      next: { revalidate: 300 },
+    });
+  } catch (err) {
+    console.error('Failed to fetch categories:', err);
+    return [];
   }
 }
