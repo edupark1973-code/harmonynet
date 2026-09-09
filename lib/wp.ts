@@ -67,15 +67,32 @@ export function normalizePost(
 }
 
 /**
- * 안전한 WP API 호출 공통 함수 (JSON 검증 및 HTML 예외 방어)
+ * Cafe24 웹 방화벽(WAF) 및 봇 차단(cupid.js, Challenge 페이지) 우회를 위한 표준 브라우저 요청 헤더
+ */
+const BROWSER_HEADERS: Record<string, string> = {
+  'Accept': 'application/json, text/plain, */*',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+  'Referer': 'https://harmonynet.kr',
+  'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+  'Cache-Control': 'no-cache',
+};
+
+/**
+ * 워드프레스 REST API 공통 호출 함수 (Cafe24 WAF 우회 헤더 및 JSON 예외 처리)
+ * 
+ * [카페24 방화벽 및 보안 플러그인 점검 안내]
+ * 1. 카페24 웹방화벽(WAF) 설정 중 '해외 IP 차단', '봇/스파이더 접근 차단', 'cupid.js 챌린지'가 활성화된 경우
+ *    클라우드 호스팅(Firebase App Hosting/Cloud Run 리전: asia-east1 등)의 API 요청이 HTML 챌린지 페이지로 응답될 수 있습니다.
+ * 2. 해결 방안:
+ *    - 카페24 관리자 페이지 -> [웹방화벽/보안 설정]에서 REST API 경로(`/wp-json/*`)의 WAF 예외 처리 설정.
+ *    - 워드프레스 어드민 보안 플러그인(Wordfence, iThemes Security 등)에서 REST API 인증/비인증 접근을 차단하고 있는지 확인.
  */
 async function fetchWpApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = `${WP_API_BASE}${cleanEndpoint}`;
 
   const headers = {
-    'Accept': 'application/json',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Next.js Harmonynet Client/1.0',
+    ...BROWSER_HEADERS,
     ...(options.headers || {}),
   };
 
@@ -99,7 +116,7 @@ async function fetchWpApi<T>(endpoint: string, options: RequestInit = {}): Promi
   if (!contentType.includes('application/json')) {
     const rawText = await res.text();
     const snippet = rawText.substring(0, 100).replace(/\s+/g, ' ');
-    throw new Error(`[WP API Non-JSON] Target URL (${url}) returned Content-Type "${contentType}" instead of JSON. Output snippet: "${snippet}"`);
+    throw new Error(`[WP API Non-JSON / Cafe24 WAF] Target URL (${url}) returned Content-Type "${contentType}" instead of JSON. Cafe24 bot block or cupid.js challenge page suspected. Snippet: "${snippet}"`);
   }
 
   return await res.json();
