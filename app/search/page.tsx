@@ -123,7 +123,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
                   </div>
 
                   <h2 className="mb-2 line-clamp-2 font-serif text-base font-bold text-neutral-900 group-hover:text-red-700 dark:text-neutral-100">
-                    <Link href={`/posts/${post.slug}`}>{post.title}</Link>
+                    <Link href={`/posts/${post.id}`}>{post.title}</Link>
                   </h2>
 
                   <p className="mb-3 line-clamp-2 text-xs text-neutral-600 dark:text-neutral-400">

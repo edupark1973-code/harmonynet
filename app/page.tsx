@@ -186,7 +186,7 @@ export default function HomePage() {
               {heroPost && (
                 <section className="border-b-2 border-neutral-300 pb-8 dark:border-neutral-800">
                   <div className="group mb-6">
-                    <Link href={`/posts/${heroPost.slug}`} className="block">
+                    <Link href={`/posts/${heroPost.id}`} className="block">
                       <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded bg-neutral-200 shadow-sm dark:bg-neutral-800">
                         <Image
                           src={heroPost.imageUrl}
@@ -218,7 +218,7 @@ export default function HomePage() {
                   <div className="grid grid-cols-1 gap-4 pt-4 border-t border-neutral-200 dark:border-neutral-800 sm:grid-cols-3">
                     {subHeroPosts.map((post) => (
                       <div key={post.id} className="group flex flex-col justify-between border-r border-neutral-200 pr-3 last:border-0 dark:border-neutral-800">
-                        <Link href={`/posts/${post.slug}`} className="block">
+                        <Link href={`/posts/${post.id}`} className="block">
                           <span className="text-[11px] font-bold text-red-700 dark:text-red-400">
                             {post.categoryName}
                           </span>
@@ -250,7 +250,7 @@ export default function HomePage() {
                       <div key={post.id} className="bg-white p-4 rounded border border-neutral-200 shadow-sm dark:bg-neutral-800 dark:border-neutral-700">
                         <span className="text-[11px] font-semibold text-neutral-500">{post.authorName} 칼럼</span>
                         <h3 className="mt-1 font-serif text-sm font-bold leading-snug text-neutral-900 hover:text-red-700 dark:text-white">
-                          <Link href={`/posts/${post.slug}`}>{post.title}</Link>
+                          <Link href={`/posts/${post.id}`}>{post.title}</Link>
                         </h3>
                       </div>
                     ))}
@@ -288,7 +288,7 @@ export default function HomePage() {
                             {post.categoryName}
                           </span>
                           <h3 className="line-clamp-2 text-sm font-bold leading-snug text-neutral-900 group-hover:text-red-700 dark:text-neutral-100 dark:group-hover:text-red-400">
-                            <Link href={`/posts/${post.slug}`}>{post.title}</Link>
+                            <Link href={`/posts/${post.id}`}>{post.title}</Link>
                           </h3>
                         </div>
                         <span className="text-[11px] text-neutral-400">{post.formattedDate}</span>
@@ -316,7 +316,7 @@ export default function HomePage() {
                       </span>
                       <div className="flex-1">
                         <h3 className="line-clamp-2 text-xs font-bold leading-snug text-neutral-800 group-hover:text-red-700 dark:text-neutral-200 dark:group-hover:text-red-400">
-                          <Link href={`/posts/${post.slug}`}>{post.title}</Link>
+                          <Link href={`/posts/${post.id}`}>{post.title}</Link>
                         </h3>
                       </div>
                     </div>

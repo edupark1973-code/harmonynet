@@ -155,7 +155,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
               {/* 카테고리 1위 메인 대표 기사 */}
               {featuredPost && (
                 <article className="group border-b-2 border-neutral-300 pb-6 dark:border-neutral-800">
-                  <Link href={`/posts/${featuredPost.slug}`} className="block">
+                  <Link href={`/posts/${featuredPost.id}`} className="block">
                     <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded bg-neutral-200 shadow-sm dark:bg-neutral-800">
                       <Image
                         src={featuredPost.imageUrl}
@@ -203,7 +203,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                       </div>
 
                       <h3 className="mb-2 line-clamp-2 font-serif text-base font-bold leading-snug text-neutral-900 group-hover:text-red-700 dark:text-neutral-100 dark:group-hover:text-red-400">
-                        <Link href={`/posts/${post.slug}`}>{post.title}</Link>
+                        <Link href={`/posts/${post.id}`}>{post.title}</Link>
                       </h3>
 
                       <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">

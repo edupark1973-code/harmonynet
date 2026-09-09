@@ -10,47 +10,86 @@ interface PostPageProps {
   params: Promise<{ id: string }>;
 }
 
-const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed&per_page=15';
-
 export default function PostPage({ params }: PostPageProps) {
   const resolvedParams = use(params);
   const postIdOrSlug = resolvedParams.id;
 
   const [post, setPost] = useState<NormalizedPost | null>(null);
-  const [allPosts, setAllPosts] = useState<NormalizedPost[]>([]);
+  const [relatedPosts, setRelatedPosts] = useState<NormalizedPost[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
 
   useEffect(() => {
     let isMounted = true;
-    async function loadPost() {
+
+    async function loadSpecificPost() {
       try {
         setLoading(true);
-        const res = await fetch(WP_DIRECT_URL, {
-          headers: { 'Accept': 'application/json, text/plain, */*' },
-        });
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        const data: WPPost[] = await res.json();
-        const normalized = data.map((p) => normalizePost(p));
-        const matched = normalized.find((p) => String(p.id) === postIdOrSlug || p.slug === postIdOrSlug) || normalized[0];
-        if (isMounted) {
-          setAllPosts(normalized);
-          setPost(matched || null);
+        setError(null);
+
+        const isNumericId = /^\d+$/.test(postIdOrSlug);
+        let targetUrl = `/api/posts?id=${encodeURIComponent(postIdOrSlug)}`;
+
+        if (!isNumericId) {
+          targetUrl = `/api/posts?slug=${encodeURIComponent(decodeURIComponent(postIdOrSlug))}&per_page=1`;
         }
-      } catch (err) {
-        console.error('Post detail fetch error:', err);
+
+        const res = await fetch(targetUrl);
+
+        if (!res.ok) {
+          throw new Error(`기사를 불러오는 중 오류가 발생했습니다 (${res.status})`);
+        }
+
+        const data = await res.json();
+        let targetWPPost: WPPost | null = null;
+
+        if (Array.isArray(data)) {
+          targetWPPost = data[0] || null;
+        } else if (data && data.id) {
+          targetWPPost = data;
+        }
+
+        // 관련 기사 및 인기 랭킹용 기사 5건 추가 페치
+        const listRes = await fetch('/api/posts?per_page=6');
+        let listData: WPPost[] = [];
+        if (listRes.ok) {
+          listData = await listRes.json();
+        }
+
+        if (isMounted) {
+          if (targetWPPost) {
+            setPost(normalizePost(targetWPPost));
+          } else {
+            setError('해당 기사를 찾을 수 없습니다.');
+          }
+
+          setRelatedPosts(
+            listData
+              .map((p) => normalizePost(p))
+              .filter((p) => p.id !== targetWPPost?.id)
+              .slice(0, 5)
+          );
+        }
+      } catch (err: unknown) {
+        if (isMounted) {
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          console.error('Post detail fetch error:', message);
+          setError(message);
+        }
       } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
-    loadPost();
+    loadSpecificPost();
+
     return () => {
       isMounted = false;
     };
   }, [postIdOrSlug]);
-
-  const relatedPosts = allPosts.filter((p) => p.id !== post?.id).slice(0, 5);
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] font-sans text-neutral-900 antialiased dark:bg-neutral-950 dark:text-neutral-100">
@@ -105,6 +144,13 @@ export default function PostPage({ params }: PostPageProps) {
       <main className="mx-auto max-w-7xl px-4 py-8">
         {loading ? (
           <div className="mx-auto max-w-4xl h-96 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800"></div>
+        ) : error ? (
+          <div className="my-12 text-center py-12 bg-white rounded border border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800">
+            <p className="text-red-700 dark:text-red-400 font-bold mb-4">{error}</p>
+            <Link href="/" className="inline-block rounded bg-red-700 px-4 py-2 text-xs font-bold text-white">
+              메인 홈으로 이동
+            </Link>
+          </div>
         ) : post ? (
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
             
@@ -134,7 +180,7 @@ export default function PostPage({ params }: PostPageProps) {
                 </div>
               </div>
 
-              {/* 핵심 요약 하이라이트 박스 (경향신문 기사 특징) */}
+              {/* 핵심 요약 하이라이트 박스 */}
               {post.excerpt && (
                 <div className="mb-6 rounded-lg bg-neutral-50 p-4 border-l-4 border-red-700 font-serif text-sm font-semibold leading-relaxed text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200">
                   💡 {post.excerpt}
@@ -194,7 +240,7 @@ export default function PostPage({ params }: PostPageProps) {
                         {relPost.categoryName}
                       </span>
                       <h4 className="mt-1 line-clamp-2 text-xs font-bold leading-snug text-neutral-800 group-hover:text-red-700 dark:text-neutral-200">
-                        <Link href={`/posts/${relPost.slug}`}>{relPost.title}</Link>
+                        <Link href={`/posts/${relPost.id}`}>{relPost.title}</Link>
                       </h4>
                       <span className="mt-1 block text-[10px] text-neutral-400">{relPost.formattedDate}</span>
                     </div>

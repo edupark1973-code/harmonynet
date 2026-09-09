@@ -20,10 +20,19 @@ export async function GET(request: Request) {
   const page = searchParams.get('page') || '1';
   const category = searchParams.get('category') || searchParams.get('categories') || '';
   const search = searchParams.get('search') || '';
+  const id = searchParams.get('id') || '';
+  const slug = searchParams.get('slug') || '';
 
-  let targetUrl = `${WP_API_BASE}/posts?_embed&per_page=${perPage}&page=${page}`;
-  if (category) targetUrl += `&categories=${category}`;
-  if (search) targetUrl += `&search=${encodeURIComponent(search)}`;
+  let targetUrl: string;
+
+  if (id && /^\d+$/.test(id)) {
+    targetUrl = `${WP_API_BASE}/posts/${id}?_embed`;
+  } else {
+    targetUrl = `${WP_API_BASE}/posts?_embed&per_page=${perPage}&page=${page}`;
+    if (category) targetUrl += `&categories=${encodeURIComponent(category)}`;
+    if (search) targetUrl += `&search=${encodeURIComponent(search)}`;
+    if (slug) targetUrl += `&slug=${encodeURIComponent(slug)}`;
+  }
 
   try {
     const res = await fetch(targetUrl, {
