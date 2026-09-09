@@ -1,6 +1,10 @@
+'use client';
+
+import { useEffect, useState, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { fetchPosts } from '@/lib/wp';
+import { WPPost, NormalizedPost } from '@/types/post';
+import { normalizePost } from '@/lib/wp';
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -14,16 +18,44 @@ const CATEGORY_NAMES: Record<string, string> = {
   culture: '사회/문화',
 };
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const resolvedParams = await params;
+const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed&per_page=12';
+
+export default function CategoryPage({ params }: CategoryPageProps) {
+  const resolvedParams = use(params);
   const slug = resolvedParams.slug;
   const categoryTitle = CATEGORY_NAMES[slug] || '카테고리 뉴스';
 
-  const { posts, error } = await fetchPosts(12);
+  const [posts, setPosts] = useState<NormalizedPost[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadCategoryPosts() {
+      try {
+        setLoading(true);
+        const res = await fetch(WP_DIRECT_URL, {
+          headers: { 'Accept': 'application/json, text/plain, */*' },
+        });
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const data: WPPost[] = await res.json();
+        if (isMounted) {
+          setPosts(data.map((post) => normalizePost(post)));
+        }
+      } catch (err) {
+        console.error('Category fetch error:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadCategoryPosts();
+    return () => {
+      isMounted = false;
+    };
+  }, [slug]);
 
   return (
     <div className="min-h-screen bg-neutral-100 font-sans text-neutral-900 antialiased dark:bg-neutral-950 dark:text-neutral-100">
-      {/* GNB / Header */}
       <header className="border-b border-neutral-300 bg-white dark:border-neutral-800 dark:bg-neutral-900">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
           <Link href="/" className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
@@ -45,13 +77,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </p>
         </div>
 
-        {error && (
-          <div className="mb-6 rounded border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950 dark:text-red-200">
-            API 알림: {error}
+        {loading ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 animate-pulse">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-64 rounded-lg bg-neutral-200 dark:bg-neutral-800"></div>
+            ))}
           </div>
-        )}
-
-        {posts.length > 0 ? (
+        ) : posts.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
               <article

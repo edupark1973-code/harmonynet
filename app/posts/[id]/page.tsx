@@ -1,17 +1,51 @@
+'use client';
+
+import { useEffect, useState, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { fetchPosts } from '@/lib/wp';
+import { WPPost, NormalizedPost } from '@/types/post';
+import { normalizePost } from '@/lib/wp';
 
 interface PostPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function PostPage({ params }: PostPageProps) {
-  const resolvedParams = await params;
-  const postSlugOrId = resolvedParams.id;
+const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed&per_page=15';
 
-  const { posts } = await fetchPosts(10);
-  const post = posts.find((p) => String(p.id) === postSlugOrId || p.slug === postSlugOrId) || posts[0];
+export default function PostPage({ params }: PostPageProps) {
+  const resolvedParams = use(params);
+  const postIdOrSlug = resolvedParams.id;
+
+  const [post, setPost] = useState<NormalizedPost | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadPost() {
+      try {
+        setLoading(true);
+        const res = await fetch(WP_DIRECT_URL, {
+          headers: { 'Accept': 'application/json, text/plain, */*' },
+        });
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const data: WPPost[] = await res.json();
+        const normalized = data.map((p) => normalizePost(p));
+        const matched = normalized.find((p) => String(p.id) === postIdOrSlug || p.slug === postIdOrSlug) || normalized[0];
+        if (isMounted) {
+          setPost(matched || null);
+        }
+      } catch (err) {
+        console.error('Post detail fetch error:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadPost();
+    return () => {
+      isMounted = false;
+    };
+  }, [postIdOrSlug]);
 
   return (
     <div className="min-h-screen bg-neutral-100 font-sans text-neutral-900 antialiased dark:bg-neutral-950 dark:text-neutral-100">
@@ -26,8 +60,10 @@ export default async function PostPage({ params }: PostPageProps) {
         </div>
       </header>
 
-      {post && (
-        <main className="mx-auto max-w-4xl px-4 py-8">
+      <main className="mx-auto max-w-4xl px-4 py-8">
+        {loading ? (
+          <div className="h-96 animate-pulse rounded-lg bg-neutral-200 dark:bg-neutral-800"></div>
+        ) : post ? (
           <article className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
             <div className="mb-4">
               <span className="inline-block rounded bg-red-600 px-2.5 py-1 text-xs font-bold text-white">
@@ -60,8 +96,10 @@ export default async function PostPage({ params }: PostPageProps) {
               dangerouslySetInnerHTML={{ __html: post.content || post.excerpt }}
             />
           </article>
-        </main>
-      )}
+        ) : (
+          <div className="py-12 text-center text-neutral-500">기사를 찾을 수 없습니다.</div>
+        )}
+      </main>
     </div>
   );
 }
