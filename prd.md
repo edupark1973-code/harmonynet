@@ -7,7 +7,7 @@
 본 프로젝트는 대전·충청 지역 창업 생태계 뉴스 및 인터넷 신문 서비스를 제공하는 **하모니넷(Harmonynet)**의 기존 카페24 워드프레스 웹사이트를 **헤드리스 워드프레스(Headless WordPress)** 아키텍처로 전환하는 프로젝트입니다.
 
 * **프로젝트명**: 하모니넷 (인터넷 신문) 프론트엔드 리뉴얼 및 헤드리스 마이그레이션
-* **백엔드 (CMS)**: 기존 카페24 워드프레스 유지 및 REST API (`https://harmonynet.kr/wp-json/wp/v2/`) 연동
+* **백엔드 (CMS)**: 기존 카페24 워드프레스 유지 및 REST API (`https://huss.harmonynet.kr/wp-json/wp/v2/`) 연동
 * **프론트엔드**: Next.js (App Router), Tailwind CSS
 * **인프라 및 배포**: 파이어베이스(Firebase) App Hosting (SSR 지원)
 * **핵심 목표**: 

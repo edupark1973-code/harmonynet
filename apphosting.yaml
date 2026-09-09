@@ -2,7 +2,7 @@ kind: AppHostingYaml
 schemaVersion: v1
 env:
   - variable: NEXT_PUBLIC_WP_API_URL
-    value: "https://harmonynet.kr/wp-json/wp/v2"
+    value: "https://huss.harmonynet.kr/wp-json/wp/v2"
 runConfig:
   region: asia-east1
   concurrency: 80

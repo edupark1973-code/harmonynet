@@ -1,6 +1,6 @@
 import { WPPost, NormalizedPost } from '@/types/post';
 
-export const WP_API_BASE = process.env.NEXT_PUBLIC_WP_API_URL || 'https://harmonynet.kr/wp-json/wp/v2';
+export const WP_API_BASE = process.env.NEXT_PUBLIC_WP_API_URL || 'https://huss.harmonynet.kr/wp-json/wp/v2';
 export const DEFAULT_FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" fill="%23f3f4f6"><rect width="100%" height="100%" fill="%23e5e7eb"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="600" fill="%236b7280">하모니넷 HARMONYNET</text></svg>';
 
 export function stripHtml(htmlString: string): string {

@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "huss.harmonynet.kr",
+      },
+      {
+        protocol: "http",
+        hostname: "huss.harmonynet.kr",
+      },
+      {
+        protocol: "https",
         hostname: "harmonynet.kr",
       },
       {
