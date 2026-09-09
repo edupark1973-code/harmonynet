@@ -1,0 +1,10 @@
+kind: AppHostingYaml
+schemaVersion: v1
+env:
+  - variable: NEXT_PUBLIC_WP_API_URL
+    value: "https://harmonynet.kr/wp-json/wp/v2"
+runConfig:
+  region: asia-east1
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
