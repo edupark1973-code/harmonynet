@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { stripHtml } from '@/lib/wp';
 
-const API = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts';
+const API = 'http://huss.harmonynet.kr/wp-json/wp/v2/posts';
 const SITE = 'https://harmonynet--harmonynet.asia-east1.hosted.app';
 const FALLBACK = `${SITE}/harmonynet-logo.png`;
 
