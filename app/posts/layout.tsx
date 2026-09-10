@@ -1,19 +1,5 @@
-import type { Metadata } from 'next';
-import { stripHtml } from '@/lib/wp';
-
-const WP_POSTS_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts';
-const SITE_URL = 'https://harmonynet--harmonynet.asia-east1.hosted.app';
-const DEFAULT_IMAGE = `${SITE_URL}/harmonynet-logo.png`;
-
-type PostMeta = {
-  id: number;
-  slug: string;
-  title?: { rendered?: string };
-  excerpt?: { rendered?: string };
-  _embedded?: { 'wp:featuredmedia'?: { source_url?: string; alt_text?: string }[] };
-};
-
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+/* metadata is generated in the dynamic [id] layout */
+/*
   const { id } = await params;
   const isNumeric = /^\d+$/.test(id);
   const query = isNumeric ? `include=${encodeURIComponent(id)}` : `slug=${encodeURIComponent(decodeURIComponent(id))}`;
@@ -64,6 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     };
   }
 }
+*/
 
 export default function PostsLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return children;
