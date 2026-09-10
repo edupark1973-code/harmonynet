@@ -4,17 +4,53 @@ const DEFAULT_WP_API = 'https://huss.harmonynet.kr/wp-json/wp/v2';
 export const WP_API_BASE = (process.env.NEXT_PUBLIC_WP_API_URL || DEFAULT_WP_API).replace(/\/+$/, '');
 export const DEFAULT_FALLBACK_IMAGE = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400" fill="%23f3f4f6"><rect width="100%" height="100%" fill="%23e5e7eb"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="600" fill="%236b7280">하모니넷 HARMONYNET</text></svg>';
 
+const HTML_ENTITIES: Record<string, string> = {
+  amp: '&',
+  apos: "'",
+  gt: '>',
+  hellip: '…',
+  laquo: '«',
+  ldquo: '“',
+  lsquo: '‘',
+  lt: '<',
+  nbsp: ' ',
+  quot: '"',
+  raquo: '»',
+  rdquo: '”',
+  rsquo: '’',
+};
+
+function decodeHtmlEntities(value: string): string {
+  // WordPress 콘텐츠에는 `&amp;#8216;`처럼 이중 인코딩된 값도 있어
+  // 한 번 더 디코딩하되 무한 반복은 피한다.
+  let decoded = value;
+
+  for (let pass = 0; pass < 2; pass += 1) {
+    const next = decoded.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z]+);/gi, (entity, code: string) => {
+      if (code[0] !== '#') return HTML_ENTITIES[code.toLowerCase()] ?? entity;
+
+      const hexadecimal = code[1]?.toLowerCase() === 'x';
+      const codePoint = Number.parseInt(code.slice(hexadecimal ? 2 : 1), hexadecimal ? 16 : 10);
+
+      if (!Number.isFinite(codePoint) || codePoint < 0 || codePoint > 0x10ffff) return entity;
+
+      try {
+        return String.fromCodePoint(codePoint);
+      } catch {
+        return entity;
+      }
+    });
+
+    if (next === decoded) break;
+    decoded = next;
+  }
+
+  return decoded;
+}
+
 export function stripHtml(htmlString: string): string {
   if (!htmlString) return '';
-  return htmlString
-    .replace(/<[^>]*>?/gm, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .trim();
+  return decodeHtmlEntities(htmlString.replace(/<[^>]*>?/gm, '')).trim();
 }
 
 export function formatDate(dateString: string): string {
