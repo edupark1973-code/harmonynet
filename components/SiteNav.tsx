@@ -7,7 +7,7 @@ const MENU_ITEMS = [
   { label: '로컬소식', href: '/category/local' },
   { label: '대학소식', href: '/category/huss' },
   { label: '로컬기업소개', href: '/section/startup' },
-  { label: '민간자격과정', href: 'https://huss.harmonynet.kr/fkca/', external: true },
+  { label: '민간자격과정', href: '/certifications' },
 ];
 
 function MenuLinks({ pathname, mobile = false }: { pathname: string; mobile?: boolean }) {
@@ -20,18 +20,10 @@ function MenuLinks({ pathname, mobile = false }: { pathname: string; mobile?: bo
         홈
       </Link>
       {MENU_ITEMS.map((item) => {
-        const active = !item.external && pathname.startsWith(item.href);
+        const active = pathname.startsWith(item.href);
         const className = `${mobile ? 'block border-b px-4 py-3' : 'whitespace-nowrap px-3.5 py-3'} transition ${active ? 'font-bold text-red-700' : 'hover:text-red-700'}`;
 
-        return item.external ? (
-          <a key={item.label} href={item.href} className={className} target="_blank" rel="noreferrer">
-            {item.label}<span className="ml-1 text-[9px] text-neutral-400">↗</span>
-          </a>
-        ) : (
-          <Link key={item.label} href={item.href} className={className}>
-            {item.label}
-          </Link>
-        );
+        return <Link key={item.label} href={item.href} className={className}>{item.label}</Link>;
       })}
       <a
         href="http://huss.harmonynet.kr/wp-admin"

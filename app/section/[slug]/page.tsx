@@ -14,7 +14,7 @@ const SECTION_NAMES: Record<string, string> = {
 
 const SECTION_META: Record<string, { kicker: string; description: string }> = {
   video: { kicker: 'VIDEO NEWS', description: '현장의 목소리와 지역의 변화를 영상으로 전합니다.' },
-  startup: { kicker: '', description: '지역의 새로운 가치를 만드는 로컬기업을 소개합니다.' },
+  startup: { kicker: '', description: '지역의 가치를 만드는 로컬기업을 소개합니다.' },
 };
 
 export default function SectionPage({ params }: { params: Promise<{ slug: string }> }) {
