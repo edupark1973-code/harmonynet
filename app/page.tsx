@@ -24,7 +24,7 @@ function NewsThumbnail({ post }: { post: NormalizedPost }) {
         </div>
         <div className="min-w-0 py-1">
           <span className="text-[10px] font-bold tracking-wide text-red-700">{displayCategory(post)}</span>
-          <h3 className="mt-1 line-clamp-2 text-[15px] font-bold leading-snug group-hover:text-red-700 sm:text-base">{post.title}</h3>
+          <h3 className="mt-1 line-clamp-2 text-base font-bold leading-snug group-hover:text-red-700 sm:text-[17px]">{post.title}</h3>
           <time className="mt-3 block text-[10px] text-neutral-400">{post.formattedDate}</time>
         </div>
       </Link>
@@ -165,7 +165,7 @@ export default function HomePage() {
                 <section className="home-side-box">
                   <div className="home-section-heading"><h2>로컬분야 주요뉴스</h2><Link href="/category/local" className="text-red-700 hover:underline">기사 더보기</Link></div>
                   <ol className="mt-3">
-                    {localPosts.map((post, index) => <li key={post.id} className="group flex gap-3 border-b border-neutral-100 py-4 last:border-0"><strong className="text-red-700">{index + 1}</strong><Link href={`/posts/${post.id}`} className="line-clamp-2 text-sm font-bold leading-snug group-hover:text-red-700">{post.title}</Link></li>)}
+                    {localPosts.map((post, index) => <li key={post.id} className="group flex gap-3 border-b border-neutral-100 py-4 last:border-0"><strong className="text-red-700">{index + 1}</strong><Link href={`/posts/${post.id}`} className="line-clamp-2 text-[15px] font-bold leading-snug group-hover:text-red-700 sm:text-base">{post.title}</Link></li>)}
                     {localPosts.length === 0 && <li className="py-4 text-xs text-neutral-500">로컬 분야 기사가 없습니다.</li>}
                   </ol>
                 </section>
@@ -173,7 +173,7 @@ export default function HomePage() {
                 <section className="home-side-box">
                   <div className="home-section-heading"><h2>대학분야 주요뉴스</h2><Link href="/category/huss" className="text-red-700 hover:underline">기사 더보기</Link></div>
                   <div className="mt-2 divide-y divide-neutral-100">
-                    {universityPosts.map((post, index) => <Link key={post.id} href={`/posts/${post.id}`} className="flex gap-3 py-3 text-sm font-semibold leading-snug hover:text-red-700"><span className="text-red-700">{index + 1}</span><span className="line-clamp-2">{post.title}</span></Link>)}
+                    {universityPosts.map((post, index) => <Link key={post.id} href={`/posts/${post.id}`} className="flex gap-3 py-3 text-[15px] font-semibold leading-snug hover:text-red-700 sm:text-base"><span className="text-red-700">{index + 1}</span><span className="line-clamp-2">{post.title}</span></Link>)}
                     {universityPosts.length === 0 && <p className="py-4 text-xs text-neutral-500">대학 분야 기사가 없습니다.</p>}
                   </div>
                 </section>
