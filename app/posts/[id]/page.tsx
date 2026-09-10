@@ -211,7 +211,7 @@ export default function PostPage({ params }: PostPageProps) {
 
               {/* 기사 본문 (폰트 크기 동적 조절) */}
               <div
-                className={`prose prose-zinc max-w-none font-serif leading-relaxed dark:prose-invert prose-headings:font-serif prose-a:text-red-700 ${
+                className={`wp-content article-body prose prose-zinc max-w-none font-serif leading-relaxed dark:prose-invert prose-headings:font-serif prose-a:text-red-700 ${
                   fontSize === 'sm' ? 'text-sm' : fontSize === 'lg' ? 'text-lg leading-loose' : 'text-base'
                 }`}
                 dangerouslySetInnerHTML={{ __html: post.content || post.excerpt }}

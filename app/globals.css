@@ -90,6 +90,11 @@ body {
 .wp-content ul { margin: 1rem 0; padding-left: 1.25rem; }
 .wp-content .wp-show-posts, .wp-content .elementor-posts-container { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
 .wp-content article { border-bottom: 1px solid #e5e5e5; padding-bottom: 1.25rem; }
+.article-body p { margin-block: 1.15em; }
+.article-body figure { margin: 2rem auto; }
+.article-body img { display: block; width: auto; max-width: 100%; height: auto; margin: 1.75rem auto; }
+.article-body figure img { margin-block: 0; }
+.article-body figcaption { margin-top: .65rem; color: #737373; font-size: 12px; line-height: 1.55; text-align: center; }
 @media (max-width: 768px) {
   .wp-content { font-size: 14px; }
   .wp-content .wp-show-posts, .wp-content .elementor-posts-container { grid-template-columns: 1fr; }

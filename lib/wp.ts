@@ -48,6 +48,54 @@ function decodeHtmlEntities(value: string): string {
   return decoded;
 }
 
+function useHttps(url: string): string {
+  return url.replace(/^http:\/\/(?:www\.)?huss\.harmonynet\.kr/i, 'https://huss.harmonynet.kr');
+}
+
+/**
+ * WordPress 이미지 최적화 플러그인(Smush 등)은 실제 주소를 data-src에
+ * 보관하고 src에는 투명 placeholder를 넣는다. 외부 사이트에서는 해당
+ * 플러그인의 스크립트가 실행되지 않으므로 표준 이미지 속성으로 복원한다.
+ */
+function normalizeContentImages(html: string): string {
+  return html.replace(/<img\b[^>]*>/gi, (imageTag) => {
+    const lazySrc = imageTag.match(/\sdata-src=(['"])(.*?)\1/i)?.[2];
+    const lazySrcset = imageTag.match(/\sdata-srcset=(['"])(.*?)\1/i)?.[2];
+    const lazySizes = imageTag.match(/\sdata-sizes=(['"])(.*?)\1/i)?.[2];
+
+    let normalized = imageTag
+      .replace(/\sdata-src=(['"])(.*?)\1/gi, '')
+      .replace(/\sdata-srcset=(['"])(.*?)\1/gi, '')
+      .replace(/\sdata-sizes=(['"])(.*?)\1/gi, '')
+      .replace(/\sclass=(['"])(.*?)\1/i, (_match, quote: string, classes: string) => {
+        const className = classes.split(/\s+/).filter((name: string) => name && name !== 'lazyload').join(' ');
+        return className ? ` class=${quote}${className}${quote}` : '';
+      });
+
+    if (lazySrc) {
+      const source = useHttps(lazySrc);
+      normalized = /\ssrc=(['"])(.*?)\1/i.test(normalized)
+        ? normalized.replace(/\ssrc=(['"])(.*?)\1/i, ` src="${source}"`)
+        : normalized.replace(/<img/i, `<img src="${source}"`);
+    } else {
+      normalized = normalized.replace(/\ssrc=(['"])(.*?)\1/i, (_match, _quote, source: string) => ` src="${useHttps(source)}"`);
+    }
+
+    if (lazySrcset) {
+      const srcset = lazySrcset.replace(/http:\/\/(?:www\.)?huss\.harmonynet\.kr/gi, 'https://huss.harmonynet.kr');
+      normalized = /\ssrcset=(['"])(.*?)\1/i.test(normalized)
+        ? normalized.replace(/\ssrcset=(['"])(.*?)\1/i, ` srcset="${srcset}"`)
+        : normalized.replace(/<img/i, `<img srcset="${srcset}"`);
+    }
+
+    if (lazySizes && !/\ssizes=(['"])(.*?)\1/i.test(normalized)) {
+      normalized = normalized.replace(/<img/i, `<img sizes="${lazySizes}"`);
+    }
+
+    return normalized;
+  });
+}
+
 export function stripHtml(htmlString: string): string {
   if (!htmlString) return '';
   return decodeHtmlEntities(htmlString.replace(/<[^>]*>?/gm, '')).trim();
@@ -90,7 +138,7 @@ export function normalizePost(
     slug: post.slug || String(post.id),
     title: stripHtml(post.title?.rendered || '제목 없음'),
     excerpt: stripHtml(post.excerpt?.rendered || ''),
-    content: post.content?.rendered || '',
+    content: normalizeContentImages(post.content?.rendered || ''),
     date: post.date,
     formattedDate: formatDate(post.date),
     imageUrl,
