@@ -1,7 +1,5 @@
-import Link from 'next/link';
 import SiteFooter from '@/components/SiteFooter';
-import SiteLogo from '@/components/SiteLogo';
-import SiteNav from '@/components/SiteNav';
+import { SectionHeader } from '@/components/SectionShell';
 
 type Certificate = {
   title: string;
@@ -47,10 +45,7 @@ function CertificateTable({ certificate }: { certificate: Certificate }) {
 export default function CertificationsPage() {
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-neutral-900">
-      <header className="border-b border-neutral-300 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6"><SiteLogo className="w-[178px] md:w-[210px]" /><Link href="/" className="text-sm text-neutral-500 hover:text-red-700">홈으로</Link></div>
-        <SiteNav />
-      </header>
+      <SectionHeader />
       <main className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
         <p className="text-xs font-bold tracking-[.18em] text-red-700">PRIVATE QUALIFICATION</p>
         <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">미래지식융합협회 민간자격증 정보공시</h1>

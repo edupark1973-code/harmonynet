@@ -83,10 +83,10 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 antialiased">
-      <div className="border-b border-neutral-200 bg-white text-xs">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-neutral-600">
+      <div className="border-b border-neutral-800 bg-neutral-900 text-xs text-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5">
           <span>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}</span>
-          <div className="hidden items-center gap-3 sm:flex"><a href="https://harmonynet.kr" target="_blank" rel="noreferrer">지면보기</a><span>·</span><Link href="/">기자단 지원</Link><span>·</span><Link href="/" className="font-bold">구독신청</Link></div>
+          <div className="hidden items-center gap-3 sm:flex"><a href="https://huss.harmonynet.kr" target="_blank" rel="noreferrer" className="hover:text-red-300">웹진보기</a><span className="text-neutral-500">·</span><a href="https://pm100.stibee.com/" target="_blank" rel="noreferrer" className="font-bold text-red-300 hover:text-white">뉴스레터구독</a></div>
         </div>
       </div>
 
