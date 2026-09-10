@@ -70,9 +70,26 @@ export default function PostPage({ params }: PostPageProps) {
             setError('해당 기사를 찾을 수 없습니다.');
           }
 
-          const normalizedList = listData
-            .map((p) => normalizePost(p))
-            .filter((p) => p.id !== targetWPPost?.id);
+          const targetCategoryIds = new Set(targetWPPost?.categories || []);
+          const targetTags = new Set(targetWPPost?.tags || []);
+          const titleWords = new Set(
+            (targetWPPost?.title?.rendered || '')
+              .replace(/<[^>]*>/g, '')
+              .split(/[^가-힣A-Za-z0-9]+/)
+              .filter((word) => word.length >= 2)
+          );
+          const scoredList = listData
+            .filter((p) => p.id !== targetWPPost?.id)
+            .map((p, index) => {
+              const categoryScore = (p.categories || []).some((id) => targetCategoryIds.has(id)) ? 100 : 0;
+              const tagScore = (p.tags || []).filter((id) => targetTags.has(id)).length * 40;
+              const candidateTitle = (p.title?.rendered || '').replace(/<[^>]*>/g, '');
+              const keywordScore = [...titleWords].filter((word) => candidateTitle.includes(word)).length * 20;
+              return { post: p, score: categoryScore + tagScore + keywordScore, index };
+            })
+            .sort((a, b) => b.score - a.score || a.index - b.index)
+            .map(({ post: p }) => normalizePost(p));
+          const normalizedList = scoredList;
           setRelatedPosts(normalizedList.slice(0, 5));
           setAllNewsPosts(normalizedList);
         }

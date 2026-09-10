@@ -9,7 +9,10 @@ import SiteFooter from '@/components/SiteFooter';
 import SiteLogo from '@/components/SiteLogo';
 import SiteNav from '@/components/SiteNav';
 
-const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed=author,wp:featuredmedia,wp:term&per_page=24&_fields=id,date,slug,title,excerpt,content,categories,featured_media,_embedded';
+const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed=author,wp:featuredmedia,wp:term&per_page=100&_fields=id,date,slug,title,excerpt,content,categories,featured_media,_embedded';
+const PORTFOLIO_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/portfolio?per_page=100&_embed=1';
+type CompanyItem = { id: number; title: { rendered: string }; content: { rendered: string }; _embedded?: { 'wp:featuredmedia'?: { source_url: string }[] } };
+const companyImage = (item: CompanyItem) => (item._embedded?.['wp:featuredmedia']?.[0]?.source_url || item.content.rendered.match(/(?:data-src|src)=["']([^"']+)["']/i)?.[1] || '').replace(/^http:\/\//i, 'https://');
 
 function NewsThumbnail({ post }: { post: NormalizedPost }) {
   return (
@@ -33,6 +36,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [visibleReportCount, setVisibleReportCount] = useState(4);
+  const [companyItems, setCompanyItems] = useState<CompanyItem[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -54,12 +58,17 @@ export default function HomePage() {
     return () => { active = false; };
   }, []);
 
+  useEffect(() => {
+    fetch(PORTFOLIO_URL).then((res) => res.ok ? res.json() : []).then((data: CompanyItem[]) => setCompanyItems([...data].sort(() => Math.random() - 0.5).slice(0, 2))).catch(() => setCompanyItems([]));
+  }, []);
+
   const heroPost = posts[0];
   const latestPosts = posts.slice(1, 5);
   const opinionPosts = posts.slice(5, 8);
-  const reportPosts = posts.slice(8, 16);
+  const reportPosts = posts.slice(5);
   const textListPosts = posts.slice(5, 24);
-  const rankedPosts = posts.slice(0, 5);
+  const localPosts = posts.filter((post) => /로컬|지역/i.test(post.categoryName)).slice(2, 7);
+  const universityPosts = posts.filter((post) => /대학|청년|교육/i.test(post.categoryName)).slice(2, 7);
   const categoryGroups = useMemo(() => {
     const groups = new Map<string, NormalizedPost[]>();
     posts.forEach((post) => {
@@ -120,17 +129,17 @@ export default function HomePage() {
 
             <div className="home-lower-grid">
               <div className="space-y-10">
-                {opinionPosts.length > 0 && (
+                {companyItems.length > 0 && (
                   <section className="border border-neutral-200 bg-neutral-100 p-6">
-                    <div className="home-section-heading"><h2>오피니언 & 시선</h2></div>
+                    <div className="home-section-heading"><h2>로컬기업소개</h2><span>COMPANY</span></div>
                     <div className="mt-4 grid gap-4 md:grid-cols-3">
-                      {opinionPosts.map((post) => <article key={post.id} className="bg-white p-4"><span className="text-[10px] text-neutral-500">{post.authorName} 칼럼</span><h3 className="mt-2 font-serif text-sm font-bold leading-snug hover:text-red-700"><Link href={`/posts/${post.id}`}>{post.title}</Link></h3></article>)}
+                      {companyItems.map((company) => <article key={company.id} className="group bg-white"><Link href="/section/startup" className="block"><div className="relative aspect-[16/9] overflow-hidden bg-neutral-200">{companyImage(company) && <Image src={companyImage(company)} alt={company.title.rendered} fill unoptimized className="object-cover transition duration-500 group-hover:scale-105" />}</div><h3 className="p-4 font-serif text-sm font-bold leading-snug group-hover:text-red-700">{company.title.rendered.replace(/<[^>]*>/g, '')}</h3></Link></article>)}
                     </div>
                   </section>
                 )}
 
                 <section>
-                  <div className="home-section-heading"><h2>기획 & 최신 리포트</h2></div>
+                  <div className="home-section-heading"><h2>전체 뉴스</h2><span>{reportPosts.length} ARTICLES</span></div>
                   <div className="mt-2 grid gap-x-6 md:grid-cols-2">
                     {reportPosts.slice(0, visibleReportCount).map((post) => <NewsThumbnail key={post.id} post={post} />)}
                   </div>
@@ -161,21 +170,18 @@ export default function HomePage() {
                 </section>
 
                 <section className="home-side-box">
-                  <div className="home-section-heading"><h2>많이 본 뉴스</h2><span>실시간</span></div>
+                  <div className="home-section-heading"><h2>로컬분야 주요뉴스</h2><span>LOCAL</span></div>
                   <ol className="mt-3">
-                    {rankedPosts.map((post, index) => <li key={post.id} className="group flex gap-3 border-b border-neutral-100 py-4 last:border-0"><strong className={index < 3 ? 'text-red-700' : 'text-neutral-400'}>{index + 1}</strong><Link href={`/posts/${post.id}`} className="line-clamp-2 text-sm font-bold leading-snug group-hover:text-red-700">{post.title}</Link></li>)}
+                    {localPosts.map((post, index) => <li key={post.id} className="group flex gap-3 border-b border-neutral-100 py-4 last:border-0"><strong className="text-red-700">{index + 1}</strong><Link href={`/posts/${post.id}`} className="line-clamp-2 text-sm font-bold leading-snug group-hover:text-red-700">{post.title}</Link></li>)}
+                    {localPosts.length === 0 && <li className="py-4 text-xs text-neutral-500">로컬 분야 기사가 없습니다.</li>}
                   </ol>
                 </section>
 
                 <section className="home-side-box">
-                  <div className="home-section-heading"><h2>분야별 주요뉴스</h2></div>
+                  <div className="home-section-heading"><h2>대학분야 주요뉴스</h2><span>UNIVERSITY</span></div>
                   <div className="mt-2 divide-y divide-neutral-100">
-                    {categoryGroups.map(([category, categoryPosts]) => (
-                      <div key={category} className="py-4">
-                        <div className="mb-2 flex items-center justify-between"><h3 className="text-xs font-extrabold text-red-700">{category}</h3><span className="text-[9px] text-neutral-400">SECTION</span></div>
-                        {categoryPosts.slice(0, 2).map((post) => <Link key={post.id} href={`/posts/${post.id}`} className="mb-2 block line-clamp-2 text-sm font-semibold leading-snug last:mb-0 hover:text-red-700">{post.title}</Link>)}
-                      </div>
-                    ))}
+                    {universityPosts.map((post, index) => <Link key={post.id} href={`/posts/${post.id}`} className="flex gap-3 py-3 text-sm font-semibold leading-snug hover:text-red-700"><span className="text-red-700">{index + 1}</span><span className="line-clamp-2">{post.title}</span></Link>)}
+                    {universityPosts.length === 0 && <p className="py-4 text-xs text-neutral-500">대학 분야 기사가 없습니다.</p>}
                   </div>
                 </section>
               </aside>
