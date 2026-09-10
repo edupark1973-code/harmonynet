@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
 import SiteNav from '@/components/SiteNav';
+import SiteFooter from '@/components/SiteFooter';
 
 const WP_POSTS_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts';
 
@@ -101,7 +102,7 @@ export default function PostPage({ params }: PostPageProps) {
       <div className="border-b border-neutral-200 bg-white text-xs dark:border-neutral-800 dark:bg-neutral-900">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
           <div className="flex items-center space-x-3 text-neutral-600 dark:text-neutral-400">
-            <span className="font-bold text-red-700 dark:text-red-500">경향스타일 하모니넷</span>
+            <span className="font-bold text-red-700 dark:text-red-500">하모니넷</span>
             <span>|</span>
             <span>기사 뷰어</span>
           </div>
@@ -259,13 +260,7 @@ export default function PostPage({ params }: PostPageProps) {
         )}
       </main>
 
-      {/* 푸터 */}
-      <footer className="mt-16 border-t-2 border-neutral-900 bg-neutral-900 text-neutral-400 dark:border-neutral-700">
-        <div className="mx-auto max-w-7xl px-4 py-8 text-xs leading-relaxed space-y-2">
-          <p>하모니넷 (Harmonynet) | 대전광역시 등록 인터넷 신문 | 신문 등록번호: 대전 아00000</p>
-          <p>Copyright © Harmonynet. All rights reserved.</p>
-        </div>
-      </footer>
+      <SiteFooter />
 
     </div>
   );

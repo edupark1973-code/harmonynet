@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
 import SiteNav from '@/components/SiteNav';
+import SiteFooter from '@/components/SiteFooter';
 
 const WP_POSTS_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts';
 
@@ -144,12 +145,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
         )}
       </main>
 
-      <footer className="mt-16 border-t-2 border-neutral-900 bg-neutral-900 text-neutral-400 dark:border-neutral-700">
-        <div className="mx-auto max-w-7xl px-4 py-8 text-xs leading-relaxed space-y-2">
-          <p>하모니넷 (Harmonynet) | 대전광역시 등록 인터넷 신문 | 신문 등록번호: 대전 아00000</p>
-          <p>Copyright © Harmonynet. All rights reserved.</p>
-        </div>
-      </footer>
+      <SiteFooter />
 
     </div>
   );

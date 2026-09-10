@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import SiteNav from '@/components/SiteNav';
+import SiteFooter from '@/components/SiteFooter';
 
 export function SectionHeader() {
   return (
@@ -30,19 +31,5 @@ export function SectionHeader() {
 }
 
 export function SectionFooter() {
-  return (
-    <footer className="subpage-footer">
-      <div className="subpage-shell subpage-footer-grid">
-        <div>
-          <strong className="text-xl text-white">하모니넷</strong>
-          <p className="mt-3">지역과 대학, 사람의 목소리를 연결합니다.</p>
-        </div>
-        <div>
-          <span className="subpage-footer-label">HARMONYNET NEWS</span>
-          <p>대전광역시 등록 인터넷신문 · 하모니넷 편집국</p>
-          <p className="mt-2">Copyright © Harmonynet. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
-  );
+  return <SiteFooter />;
 }

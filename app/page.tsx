@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
 import SiteNav from '@/components/SiteNav';
+import SiteFooter from '@/components/SiteFooter';
 
 const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed&per_page=15';
 
@@ -332,35 +333,7 @@ export default function HomePage() {
         )}
       </main>
 
-      {/* 5. 경향신문 스타일 하단 푸터 */}
-      <footer className="mt-16 border-t-2 border-neutral-900 bg-neutral-900 text-neutral-400 dark:border-neutral-700">
-        <div className="mx-auto max-w-7xl px-4 py-10">
-          <div className="flex flex-wrap items-center justify-between border-b border-neutral-800 pb-6 mb-6">
-            <div className="font-serif text-2xl font-extrabold text-white">
-              하모니<span className="text-red-600">넷</span>
-            </div>
-            <div className="flex space-x-6 text-xs font-semibold text-neutral-300">
-              <Link href="/" className="hover:text-white">회사소개</Link>
-              <Link href="/" className="hover:text-white">기자윤리강령</Link>
-              <Link href="/" className="hover:text-white font-bold text-white">개인정보 처리방침</Link>
-              <Link href="/" className="hover:text-white">청소년 보호정책</Link>
-              <Link href="/" className="hover:text-white">고충처리인</Link>
-            </div>
-          </div>
-
-          <div className="text-xs leading-relaxed space-y-2 text-neutral-400">
-            <p>
-              하모니넷 (Harmonynet) | 대전광역시 등록 인터넷 신문 | 신문 등록번호: 대전 아00000 | 발행인·편집인: 편집국
-            </p>
-            <p>
-              주소: 대전광역시 | 대표전화: 042-000-0000 | 기사제보 및 문의: contact@harmonynet.kr
-            </p>
-            <p className="text-neutral-500 pt-2">
-              Copyright © Harmonynet. All rights reserved. 본 콘텐츠의 무단 전재 및 재배포를 금합니다.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
 
     </div>
   );

@@ -47,6 +47,13 @@
   .subpage-footer { margin-top: 72px; background: #1c2925; color: #aeb8b3; font-size: 12px; }
   .subpage-footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding-block: 44px; }
   .subpage-footer-label { display: block; color: #dfe7e3; font-size: 9px; font-weight: 800; letter-spacing: .16em; margin-bottom: 12px; }
+  .footer-company-info { display: grid; grid-template-columns: 180px 1fr; gap: 44px; padding-block: 42px; }
+  .footer-brand-name { color: #fff; font-family: Georgia, 'Noto Serif KR', serif; font-size: 26px; letter-spacing: -.04em; }
+  .footer-logo-wrap { align-self: start; width: fit-content; overflow: hidden; border-radius: 3px; background: #fff; padding: 5px 8px; }
+  .footer-logo { width: 150px; height: auto; }
+  .footer-info-lines { display: grid; gap: 7px; line-height: 1.65; }
+  .footer-info-lines span { margin-inline: 7px; color: #61706a; }
+  .footer-copyright { margin-top: 8px; color: #7f8c86; }
 }
 
 @media (max-width: 760px) {
@@ -57,6 +64,7 @@
   .article-row-link { grid-template-columns: 120px 1fr; gap: 16px; }
   .article-row-copy p { display: none; }
   .subpage-footer-grid { grid-template-columns: 1fr; }
+  .footer-company-info { grid-template-columns: 1fr; gap: 18px; }
 }
 
 @media (max-width: 480px) {
