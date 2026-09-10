@@ -31,6 +31,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   const [posts, setPosts] = useState<NormalizedPost[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [visibleListCount, setVisibleListCount] = useState(10);
 
   useEffect(() => {
     let isMounted = true;
@@ -58,6 +59,10 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     return () => {
       isMounted = false;
     };
+  }, [slug]);
+
+  useEffect(() => {
+    setVisibleListCount(10);
   }, [slug]);
 
   const featuredPost = posts[0];
@@ -122,7 +127,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             <section className="latest-section">
               <div className="latest-heading"><h2>최신 기사</h2><span>{posts.length} ARTICLES</span></div>
               <div className="article-list">
-                {listPosts.map((post) => (
+                {listPosts.slice(0, visibleListCount).map((post) => (
                   <article key={post.id} className="article-row group">
                     <Link href={`/posts/${post.id}`} className="article-row-link">
                       <div className="article-row-image">
@@ -144,6 +149,13 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                   </article>
                 ))}
               </div>
+              {visibleListCount < listPosts.length && (
+                <div className="home-report-more mt-6">
+                  <button type="button" onClick={() => setVisibleListCount((count) => count + 5)}>
+                    기사 더보기 <span>+{Math.min(5, listPosts.length - visibleListCount)}</span>
+                  </button>
+                </div>
+              )}
             </section>
           </>
         )}

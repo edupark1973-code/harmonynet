@@ -35,7 +35,7 @@ export default function HomePage() {
   const [posts, setPosts] = useState<NormalizedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [visibleReportCount, setVisibleReportCount] = useState(4);
+  const [visibleReportCount, setVisibleReportCount] = useState(8);
   const [companyItems, setCompanyItems] = useState<CompanyItem[]>([]);
 
   useEffect(() => {
@@ -68,8 +68,8 @@ export default function HomePage() {
   const reportPosts = posts.slice(5);
   const textListPosts = posts.slice(5, 24);
   // 원본 워드프레스의 실제 카테고리 slug(local/huss)로 분야를 분리합니다.
-  const localPosts = posts.filter((post) => post.categorySlug === 'local').slice(2, 7);
-  const universityPosts = posts.filter((post) => post.categorySlug === 'huss').slice(2, 7);
+  const localPosts = posts.filter((post) => post.categoryId === 25 || post.categorySlug === 'local').slice(2, 7);
+  const universityPosts = posts.filter((post) => post.categoryId === 72 || post.categorySlug === 'huss').slice(2, 7);
   const categoryGroups = useMemo(() => {
     const groups = new Map<string, NormalizedPost[]>();
     posts.forEach((post) => {
