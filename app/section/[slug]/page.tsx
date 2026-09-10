@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { SectionFooter, SectionHeader } from '@/components/SectionShell';
+import LocalCompanyGallery from '@/components/LocalCompanyGallery';
 
 type WPPage = { id: number; slug: string; title: { rendered: string }; content: { rendered: string } };
 
@@ -23,6 +24,10 @@ export default function SectionPage({ params }: { params: Promise<{ slug: string
   const title = SECTION_NAMES[slug] || '하모니넷';
 
   useEffect(() => {
+    if (slug === 'startup') {
+      setLoading(false);
+      return;
+    }
     let active = true;
     fetch(`https://huss.harmonynet.kr/wp-json/wp/v2/pages?slug=${encodeURIComponent(slug)}`)
       .then((response) => response.ok ? response.json() : [])
@@ -42,7 +47,9 @@ export default function SectionPage({ params }: { params: Promise<{ slug: string
           </div>
           <p>{SECTION_META[slug]?.description || '하모니넷의 특별한 이야기를 만나보세요.'}</p>
         </div>
-        {loading ? (
+        {slug === 'startup' ? (
+          <LocalCompanyGallery />
+        ) : loading ? (
           <div className="h-72 animate-pulse bg-neutral-200 dark:bg-neutral-800" />
         ) : page ? (
           <article className="wp-content section-content" dangerouslySetInnerHTML={{ __html: page.content.rendered }} />
