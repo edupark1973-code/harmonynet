@@ -125,7 +125,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
               </div>
             </section>
             <section className="latest-section">
-              <div className="latest-heading"><h2>최신 기사</h2><span>{posts.length} ARTICLES</span></div>
+              <div className="latest-heading"><h2>최신 기사</h2></div>
               <div className="article-list">
                 {listPosts.slice(0, visibleListCount).map((post) => (
                   <article key={post.id} className="article-row group">

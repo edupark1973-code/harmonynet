@@ -132,7 +132,7 @@ export default function HomePage() {
             <div className="home-lower-grid">
               <div className="space-y-10">
                 <section>
-                  <div className="home-section-heading"><h2>전체 뉴스</h2><span>{reportPosts.length} ARTICLES</span></div>
+                  <div className="home-section-heading"><h2>전체 뉴스</h2></div>
                   <div className="mt-2 grid gap-x-6 md:grid-cols-2">
                     {reportPosts.slice(0, visibleReportCount).map((post) => <NewsThumbnail key={post.id} post={post} />)}
                   </div>
@@ -163,7 +163,7 @@ export default function HomePage() {
                 </section>
 
                 <section className="home-side-box">
-                  <div className="home-section-heading"><h2>로컬분야 주요뉴스</h2><span>LOCAL</span></div>
+                  <div className="home-section-heading"><h2>로컬분야 주요뉴스</h2><Link href="/category/local" className="text-red-700 hover:underline">기사 더보기</Link></div>
                   <ol className="mt-3">
                     {localPosts.map((post, index) => <li key={post.id} className="group flex gap-3 border-b border-neutral-100 py-4 last:border-0"><strong className="text-red-700">{index + 1}</strong><Link href={`/posts/${post.id}`} className="line-clamp-2 text-sm font-bold leading-snug group-hover:text-red-700">{post.title}</Link></li>)}
                     {localPosts.length === 0 && <li className="py-4 text-xs text-neutral-500">로컬 분야 기사가 없습니다.</li>}
@@ -171,7 +171,7 @@ export default function HomePage() {
                 </section>
 
                 <section className="home-side-box">
-                  <div className="home-section-heading"><h2>대학분야 주요뉴스</h2><span>UNIVERSITY</span></div>
+                  <div className="home-section-heading"><h2>대학분야 주요뉴스</h2><Link href="/category/huss" className="text-red-700 hover:underline">기사 더보기</Link></div>
                   <div className="mt-2 divide-y divide-neutral-100">
                     {universityPosts.map((post, index) => <Link key={post.id} href={`/posts/${post.id}`} className="flex gap-3 py-3 text-sm font-semibold leading-snug hover:text-red-700"><span className="text-red-700">{index + 1}</span><span className="line-clamp-2">{post.title}</span></Link>)}
                     {universityPosts.length === 0 && <p className="py-4 text-xs text-neutral-500">대학 분야 기사가 없습니다.</p>}
