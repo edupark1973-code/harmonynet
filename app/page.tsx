@@ -9,7 +9,7 @@ import SiteFooter from '@/components/SiteFooter';
 import SiteLogo from '@/components/SiteLogo';
 import SiteNav from '@/components/SiteNav';
 
-const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed=author,wp:featuredmedia,wp:term&per_page=24&_fields=id,date,slug,title,excerpt,categories,_embedded';
+const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed=author,wp:featuredmedia,wp:term&per_page=24&_fields=id,date,slug,title,excerpt,content,categories,featured_media,_embedded';
 
 function NewsThumbnail({ post }: { post: NormalizedPost }) {
   return (
@@ -145,7 +145,7 @@ export default function HomePage() {
               </div>
 
               <aside className="home-sidebar">
-                <section className="home-side-box">
+                <section className="home-side-box hidden">
                   <div className="home-section-heading"><h2>전체 뉴스</h2><span>{textListPosts.length} ARTICLES</span></div>
                   <div className="home-text-news-list">
                     {textListPosts.map((post) => (

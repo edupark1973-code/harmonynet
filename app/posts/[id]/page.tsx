@@ -21,6 +21,7 @@ export default function PostPage({ params }: PostPageProps) {
 
   const [post, setPost] = useState<NormalizedPost | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<NormalizedPost[]>([]);
+  const [allNewsPosts, setAllNewsPosts] = useState<NormalizedPost[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
@@ -56,7 +57,7 @@ export default function PostPage({ params }: PostPageProps) {
         }
 
         // 관련 기사 및 인기 랭킹용 기사 5건 추가 페치
-        const listRes = await fetch(`${WP_POSTS_URL}?_embed=1&per_page=6`);
+        const listRes = await fetch(`${WP_POSTS_URL}?_embed=1&per_page=24`);
         let listData: WPPost[] = [];
         if (listRes.ok) {
           listData = await listRes.json();
@@ -69,12 +70,11 @@ export default function PostPage({ params }: PostPageProps) {
             setError('해당 기사를 찾을 수 없습니다.');
           }
 
-          setRelatedPosts(
-            listData
-              .map((p) => normalizePost(p))
-              .filter((p) => p.id !== targetWPPost?.id)
-              .slice(0, 5)
-          );
+          const normalizedList = listData
+            .map((p) => normalizePost(p))
+            .filter((p) => p.id !== targetWPPost?.id);
+          setRelatedPosts(normalizedList.slice(0, 5));
+          setAllNewsPosts(normalizedList);
         }
       } catch (err: unknown) {
         if (isMounted) {
@@ -247,6 +247,21 @@ export default function PostPage({ params }: PostPageProps) {
                       </h4>
                       <span className="mt-1 block text-[10px] text-neutral-400">{relPost.formattedDate}</span>
                     </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-lg border border-neutral-200 shadow-sm dark:bg-neutral-900 dark:border-neutral-800">
+                <h3 className="font-serif text-lg font-bold border-b-2 border-neutral-900 pb-2 text-neutral-900 dark:border-neutral-200 dark:text-white">
+                  전체 뉴스
+                </h3>
+                <div className="mt-2 divide-y divide-neutral-100 dark:divide-neutral-800">
+                  {allNewsPosts.map((newsPost) => (
+                    <Link key={newsPost.id} href={`/posts/${newsPost.id}`} className="group block py-3 first:pt-1">
+                      <span className="text-[10px] font-bold text-red-700 dark:text-red-400">{newsPost.categoryName}</span>
+                      <h4 className="mt-1 line-clamp-2 text-xs font-semibold leading-snug text-neutral-800 group-hover:text-red-700 dark:text-neutral-200">{newsPost.title}</h4>
+                      <time className="mt-1 block text-[10px] text-neutral-400">{newsPost.formattedDate}</time>
+                    </Link>
                   ))}
                 </div>
               </div>

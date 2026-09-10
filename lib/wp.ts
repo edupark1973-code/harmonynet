@@ -52,6 +52,19 @@ function useHttps(url: string): string {
   return url.replace(/^http:\/\/(?:www\.)?huss\.harmonynet\.kr/i, 'https://huss.harmonynet.kr');
 }
 
+function getFirstContentImage(html: string): string | undefined {
+  if (!html) return undefined;
+
+  const imageTag = html.match(/<img\b[^>]*>/i)?.[0];
+  if (!imageTag) return undefined;
+
+  const source =
+    imageTag.match(/\sdata-src=(['"])(.*?)\1/i)?.[2] ||
+    imageTag.match(/\ssrc=(['"])(.*?)\1/i)?.[2];
+
+  return source ? useHttps(decodeHtmlEntities(source)) : undefined;
+}
+
 /**
  * WordPress 이미지 최적화 플러그인(Smush 등)은 실제 주소를 data-src에
  * 보관하고 src에는 투명 placeholder를 넣는다. 외부 사이트에서는 해당
@@ -116,10 +129,12 @@ export function normalizePost(
   fallbackImage: string = DEFAULT_FALLBACK_IMAGE
 ): NormalizedPost {
   const featuredMedia = post._embedded?.['wp:featuredmedia']?.[0];
+  const contentImage = getFirstContentImage(post.content?.rendered || '');
   const imageUrl =
     featuredMedia?.media_details?.sizes?.medium_large?.source_url ||
     featuredMedia?.media_details?.sizes?.large?.source_url ||
     featuredMedia?.source_url ||
+    contentImage ||
     fallbackImage;
 
   const imageAlt = featuredMedia?.alt_text || stripHtml(post.title?.rendered || '') || '하모니넷 기사';
