@@ -142,7 +142,11 @@ export function normalizePost(
   const authorObj = post._embedded?.['author']?.[0];
   const authorName = authorObj?.name || '하모니넷 편집국';
 
-  const categoriesList = post._embedded?.['wp:term']?.[0] || [];
+  // 워드프레스의 wp:term은 카테고리·태그가 별도 배열로 올 수 있으므로
+  // 첫 번째 배열에 의존하지 않고 category taxonomy를 정확히 선택합니다.
+  const categoriesList = (post._embedded?.['wp:term'] || [])
+    .flat()
+    .filter((term) => term.taxonomy === 'category');
   const primaryCategory = categoriesList.find((term) => term.taxonomy === 'category');
   const categoryName = primaryCategory?.name || '지역소식';
   const categoryId = primaryCategory?.id || (post.categories?.[0] ?? null);

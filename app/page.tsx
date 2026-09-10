@@ -59,7 +59,7 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    fetch(PORTFOLIO_URL).then((res) => res.ok ? res.json() : []).then((data: CompanyItem[]) => setCompanyItems([...data].sort(() => Math.random() - 0.5).slice(0, 2))).catch(() => setCompanyItems([]));
+    fetch(PORTFOLIO_URL).then((res) => res.ok ? res.json() : []).then((data: CompanyItem[]) => setCompanyItems([...data].sort(() => Math.random() - 0.5).slice(0, 1))).catch(() => setCompanyItems([]));
   }, []);
 
   const heroPost = posts[0];
@@ -67,8 +67,9 @@ export default function HomePage() {
   const opinionPosts = posts.slice(5, 8);
   const reportPosts = posts.slice(5);
   const textListPosts = posts.slice(5, 24);
-  const localPosts = posts.filter((post) => /로컬|지역/i.test(post.categoryName)).slice(2, 7);
-  const universityPosts = posts.filter((post) => /대학|청년|교육/i.test(post.categoryName)).slice(2, 7);
+  // 원본 워드프레스의 실제 카테고리 slug(local/huss)로 분야를 분리합니다.
+  const localPosts = posts.filter((post) => post.categorySlug === 'local').slice(2, 7);
+  const universityPosts = posts.filter((post) => post.categorySlug === 'huss').slice(2, 7);
   const categoryGroups = useMemo(() => {
     const groups = new Map<string, NormalizedPost[]>();
     posts.forEach((post) => {
@@ -129,15 +130,6 @@ export default function HomePage() {
 
             <div className="home-lower-grid">
               <div className="space-y-10">
-                {companyItems.length > 0 && (
-                  <section className="border border-neutral-200 bg-neutral-100 p-6">
-                    <div className="home-section-heading"><h2>로컬기업소개</h2><span>COMPANY</span></div>
-                    <div className="mt-4 grid gap-4 md:grid-cols-3">
-                      {companyItems.map((company) => <article key={company.id} className="group bg-white"><Link href="/section/startup" className="block"><div className="relative aspect-[16/9] overflow-hidden bg-neutral-200">{companyImage(company) && <Image src={companyImage(company)} alt={company.title.rendered} fill unoptimized className="object-cover transition duration-500 group-hover:scale-105" />}</div><h3 className="p-4 font-serif text-sm font-bold leading-snug group-hover:text-red-700">{company.title.rendered.replace(/<[^>]*>/g, '')}</h3></Link></article>)}
-                    </div>
-                  </section>
-                )}
-
                 <section>
                   <div className="home-section-heading"><h2>전체 뉴스</h2><span>{reportPosts.length} ARTICLES</span></div>
                   <div className="mt-2 grid gap-x-6 md:grid-cols-2">
@@ -184,6 +176,19 @@ export default function HomePage() {
                     {universityPosts.length === 0 && <p className="py-4 text-xs text-neutral-500">대학 분야 기사가 없습니다.</p>}
                   </div>
                 </section>
+                {companyItems[0] && (
+                  <section className="home-side-box">
+                    <div className="home-section-heading"><h2>로컬기업소개</h2><span>COMPANY</span></div>
+                    <article className="group mt-3 overflow-hidden bg-neutral-50">
+                      <Link href="/section/startup" className="block">
+                        <div className="relative aspect-[16/9] overflow-hidden bg-neutral-200">
+                          {companyImage(companyItems[0]) && <Image src={companyImage(companyItems[0])} alt={companyItems[0].title.rendered} fill unoptimized className="object-cover transition duration-500 group-hover:scale-105" />}
+                        </div>
+                        <h3 className="p-4 text-sm font-bold leading-snug group-hover:text-red-700">{companyItems[0].title.rendered.replace(/<[^>]*>/g, '')}</h3>
+                      </Link>
+                    </article>
+                  </section>
+                )}
               </aside>
             </div>
           </>
