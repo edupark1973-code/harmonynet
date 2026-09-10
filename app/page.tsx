@@ -13,6 +13,7 @@ const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed=aut
 const PORTFOLIO_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/portfolio?per_page=100&_embed=1';
 type CompanyItem = { id: number; title: { rendered: string }; content: { rendered: string }; _embedded?: { 'wp:featuredmedia'?: { source_url: string }[] } };
 const companyImage = (item: CompanyItem) => (item._embedded?.['wp:featuredmedia']?.[0]?.source_url || item.content.rendered.match(/(?:data-src|src)=["']([^"']+)["']/i)?.[1] || '').replace(/^http:\/\//i, 'https://');
+const displayCategory = (post: NormalizedPost) => post.categoryId === 72 ? '대학소식' : post.categoryId === 25 ? '지역소식' : post.categoryName;
 
 function NewsThumbnail({ post }: { post: NormalizedPost }) {
   return (
@@ -22,7 +23,7 @@ function NewsThumbnail({ post }: { post: NormalizedPost }) {
           <Image src={post.imageUrl} alt={post.imageAlt} fill sizes="160px" unoptimized={post.imageUrl.startsWith('data:')} className="object-cover transition duration-500 group-hover:scale-105" />
         </div>
         <div className="min-w-0 py-1">
-          <span className="text-[10px] font-bold tracking-wide text-red-700">{post.categoryName}</span>
+          <span className="text-[10px] font-bold tracking-wide text-red-700">{displayCategory(post)}</span>
           <h3 className="mt-1 line-clamp-2 text-[15px] font-bold leading-snug group-hover:text-red-700 sm:text-base">{post.title}</h3>
           <time className="mt-3 block text-[10px] text-neutral-400">{post.formattedDate}</time>
         </div>

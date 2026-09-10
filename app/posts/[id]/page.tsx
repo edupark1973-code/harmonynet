@@ -57,10 +57,21 @@ export default function PostPage({ params }: PostPageProps) {
         }
 
         // 관련 기사 및 인기 랭킹용 기사 5건 추가 페치
-        const listRes = await fetch(`${WP_POSTS_URL}?_embed=1&per_page=24`);
+        const categoryId = targetWPPost?.categories?.[0];
+        const relatedEndpoint = categoryId
+          ? `${WP_POSTS_URL}?_embed=1&categories=${categoryId}&per_page=10`
+          : `${WP_POSTS_URL}?_embed=1&per_page=10`;
+        const [listRes, allNewsRes] = await Promise.all([
+          fetch(relatedEndpoint),
+          fetch(`${WP_POSTS_URL}?_embed=1&per_page=24`),
+        ]);
         let listData: WPPost[] = [];
+        let allNewsData: WPPost[] = [];
         if (listRes.ok) {
           listData = await listRes.json();
+        }
+        if (allNewsRes.ok) {
+          allNewsData = await allNewsRes.json();
         }
 
         if (isMounted) {
@@ -91,7 +102,12 @@ export default function PostPage({ params }: PostPageProps) {
             .map(({ post: p }) => normalizePost(p));
           const normalizedList = scoredList;
           setRelatedPosts(normalizedList.slice(0, 5));
-          setAllNewsPosts(normalizedList);
+          setAllNewsPosts(
+            allNewsData
+              .map((p) => normalizePost(p))
+              .filter((p) => p.id !== targetWPPost?.id)
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          );
         }
       } catch (err: unknown) {
         if (isMounted) {
