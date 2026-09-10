@@ -7,6 +7,7 @@ import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
+import { SectionHeader } from '@/components/SectionShell';
 import SiteLogo from '@/components/SiteLogo';
 
 const WP_POSTS_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts';
@@ -130,9 +131,10 @@ export default function PostPage({ params }: PostPageProps) {
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] font-sans text-neutral-900 antialiased dark:bg-neutral-950 dark:text-neutral-100">
+      <SectionHeader />
       
       {/* 1. 최상단 유틸리티 바 */}
-      <div className="border-b border-neutral-200 bg-white text-xs dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="hidden border-b border-neutral-200 bg-white text-xs dark:border-neutral-800 dark:bg-neutral-900">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
           <div className="flex items-center space-x-3 text-neutral-600 dark:text-neutral-400">
             <span>|</span>
@@ -145,7 +147,7 @@ export default function PostPage({ params }: PostPageProps) {
       </div>
 
       {/* 2. 헤더 */}
-      <header className="border-b border-neutral-300 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+      <header className="hidden border-b border-neutral-300 bg-white dark:border-neutral-800 dark:bg-neutral-900">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
           <SiteLogo className="w-[150px] sm:w-[178px]" />
 
