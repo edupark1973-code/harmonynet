@@ -13,6 +13,7 @@
   .subpage-brand strong { font-family: Georgia, 'Noto Serif KR', serif; font-size: clamp(30px, 4vw, 43px); letter-spacing: -.06em; }
   .subpage-brand strong span { color: #b93028; }
   .subpage-brand small { margin-top: 8px; font-size: 9px; font-weight: 700; letter-spacing: .16em; color: #69716d; }
+  .site-logo { display: block; flex: none; overflow: hidden; background: #fff; }
   .subpage-search { align-items: center; border-bottom: 1px solid #242b28; width: 220px; }
   .subpage-search input { width: 100%; background: transparent; padding: 8px 2px; outline: none; font-size: 13px; }
   .subpage-search button { font-size: 22px; color: #38433f; }

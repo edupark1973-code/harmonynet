@@ -7,6 +7,7 @@ import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
+import SiteLogo from '@/components/SiteLogo';
 
 const WP_POSTS_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts';
 
@@ -66,9 +67,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
 
       <header className="border-b border-neutral-300 bg-white dark:border-neutral-800 dark:bg-neutral-900">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6">
-          <Link href="/" className="font-serif text-3xl font-extrabold tracking-tight text-neutral-900 hover:text-red-700 dark:text-white">
-            하모니<span className="text-red-700 dark:text-red-500">넷</span>
-          </Link>
+          <SiteLogo className="w-[154px] sm:w-[178px]" />
         </div>
         <SiteNav />
       </header>

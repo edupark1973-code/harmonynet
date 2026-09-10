@@ -8,12 +8,12 @@ type WPPage = { id: number; slug: string; title: { rendered: string }; content: 
 
 const SECTION_NAMES: Record<string, string> = {
   video: '영상뉴스',
-  startup: '콘텐츠기업 소개',
+  startup: '로컬기업소개',
 };
 
 const SECTION_META: Record<string, { kicker: string; description: string }> = {
   video: { kicker: 'VIDEO NEWS', description: '현장의 목소리와 지역의 변화를 영상으로 전합니다.' },
-  startup: { kicker: 'CONTENT COMPANY', description: '지역의 새로운 가치를 만드는 콘텐츠 기업을 소개합니다.' },
+  startup: { kicker: '', description: '지역의 새로운 가치를 만드는 로컬기업을 소개합니다.' },
 };
 
 export default function SectionPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -37,7 +37,7 @@ export default function SectionPage({ params }: { params: Promise<{ slug: string
       <main className="subpage-shell py-8 sm:py-12">
         <div className="section-title-row">
           <div>
-            <p className="section-kicker">{SECTION_META[slug]?.kicker || 'HARMONYNET SECTION'}</p>
+            {SECTION_META[slug]?.kicker && <p className="section-kicker">{SECTION_META[slug].kicker}</p>}
             <h1>{title}</h1>
           </div>
           <p>{SECTION_META[slug]?.description || '하모니넷의 특별한 이야기를 만나보세요.'}</p>

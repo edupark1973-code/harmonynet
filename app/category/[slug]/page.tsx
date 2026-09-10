@@ -12,7 +12,7 @@ interface CategoryPageProps {
 }
 
 const CATEGORY_NAMES: Record<string, string> = {
-  huss: 'HUSS 소식',
+  huss: '대학소식',
   local: '로컬 소식',
 };
 

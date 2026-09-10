@@ -7,6 +7,7 @@ import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
+import SiteLogo from '@/components/SiteLogo';
 
 const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed&per_page=15';
 
@@ -70,7 +71,6 @@ export default function HomePage() {
       <div className="border-b border-neutral-200 bg-white text-xs dark:border-neutral-800 dark:bg-neutral-900">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
           <div className="flex items-center space-x-3 text-neutral-600 dark:text-neutral-400">
-            <span className="font-bold text-red-700 dark:text-red-500">경향스타일 하모니넷</span>
             <span>|</span>
             <span>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}</span>
           </div>
@@ -96,13 +96,9 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6">
           {/* 브랜드 로고 (경향신문풍 볼드 타이포그래피 + 레드 포인트) */}
           <div className="flex items-baseline space-x-3">
-            <Link href="/" className="group flex items-baseline">
-              <span className="font-serif text-4xl font-extrabold tracking-tight text-neutral-900 group-hover:text-red-700 dark:text-white dark:group-hover:text-red-500 md:text-5xl">
-                하모니<span className="text-red-700 dark:text-red-500">넷</span>
-              </span>
-            </Link>
+            <SiteLogo className="w-[178px] md:w-[210px]" />
             <span className="hidden text-xs font-medium text-neutral-500 dark:text-neutral-400 sm:inline-block border-l border-neutral-300 pl-3 dark:border-neutral-700">
-              진실을 담는 대전·충청 지역 언론
+              대전·세종 로컬기업&대학 뉴스
             </span>
           </div>
 
@@ -179,7 +175,7 @@ export default function HomePage() {
                         {heroPost.title}
                       </h1>
                       <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
-                        {heroPost.excerpt || '하모니넷이 다루는 대전·충청 지역의 주요 현안 및 이슈 기사입니다.'}
+                        {heroPost.excerpt || '하모니넷이 다루는 대전·세종 지역의 주요 현안 및 이슈 기사입니다.'}
                       </p>
                       <div className="mt-3 flex items-center space-x-3 text-xs text-neutral-500">
                         <span className="font-semibold text-neutral-800 dark:text-neutral-200">{heroPost.authorName}</span>
@@ -305,7 +301,7 @@ export default function HomePage() {
                   주요 이슈 키워드
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {['#대전창업', '#스타트업', '#지원사업', '#충청소식', '#테크기업', '#오피니언', '#지역경제'].map((tag) => (
+                  {['#대전창업', '#스타트업', '#지원사업', '#세종소식', '#테크기업', '#오피니언', '#지역경제'].map((tag) => (
                     <Link
                       key={tag}
                       href="/search?q=창업"
@@ -321,7 +317,7 @@ export default function HomePage() {
               <div className="rounded-lg bg-neutral-900 p-6 text-white text-center shadow-md dark:bg-neutral-800">
                 <h3 className="font-serif text-lg font-bold">하모니넷 기사 제보</h3>
                 <p className="mt-2 text-xs text-neutral-400 leading-relaxed">
-                  대전·충청 지역 스타트업 및 주민 소식을 제보해 주세요. 진실된 뉴스로 답하겠습니다.
+                  대전·충청 지역 스타트업 및 대학 소식을 제보해 주세요. 진실된 뉴스로 답하겠습니다.
                 </p>
                 <button className="mt-4 w-full rounded bg-red-700 py-2 text-xs font-bold text-white hover:bg-red-800 transition">
                   기사 제보하기

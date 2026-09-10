@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
+import SiteLogo from '@/components/SiteLogo';
 
 export function SectionHeader() {
   return (
@@ -14,10 +14,7 @@ export function SectionHeader() {
       </div>
       <header className="subpage-header">
         <div className="subpage-shell flex items-center justify-between py-5 sm:py-7">
-          <Link href="/" className="subpage-brand" aria-label="하모니넷 홈">
-            <strong>하모니<span>넷</span></strong>
-            <small>HARMONYNET · LOCAL CONTENT MEDIA</small>
-          </Link>
+          <SiteLogo className="w-[154px] sm:w-[178px]" />
           <form action="/search" className="subpage-search hidden md:flex">
             <label htmlFor="subpage-search" className="sr-only">기사 검색</label>
             <input id="subpage-search" name="q" placeholder="뉴스 검색" />

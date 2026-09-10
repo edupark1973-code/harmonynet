@@ -4,11 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const MENU_ITEMS = [
-  { label: 'HUSS소식', href: '/category/huss' },
   { label: '로컬소식', href: '/category/local' },
-  { label: '영상뉴스', href: '/section/video' },
-  { label: '콘텐츠기업소개', href: '/section/startup' },
-  { label: '스타트업 뉴스', href: 'http://harmonynet.kr/news', external: true },
+  { label: '대학소식', href: '/category/huss' },
+  { label: '로컬기업소개', href: '/section/startup' },
   { label: '민간자격과정', href: 'https://huss.harmonynet.kr/fkca/', external: true },
 ];
 
