@@ -276,7 +276,7 @@ export default function PostPage({ params }: PostPageProps) {
                       <span className="text-[11px] font-bold text-red-700 dark:text-red-400">
                         {relPost.categoryName}
                       </span>
-                      <h4 className="mt-1 line-clamp-2 text-xs font-bold leading-snug text-neutral-800 group-hover:text-red-700 dark:text-neutral-200">
+                      <h4 className="mt-1 line-clamp-2 text-sm font-bold leading-snug text-neutral-800 group-hover:text-red-700 dark:text-neutral-200">
                         <Link href={`/posts/${relPost.id}`}>{relPost.title}</Link>
                       </h4>
                       <span className="mt-1 block text-[10px] text-neutral-400">{relPost.formattedDate}</span>
@@ -293,7 +293,7 @@ export default function PostPage({ params }: PostPageProps) {
                   {allNewsPosts.map((newsPost) => (
                     <Link key={newsPost.id} href={`/posts/${newsPost.id}`} className="group block py-3 first:pt-1">
                       <span className="text-[10px] font-bold text-red-700 dark:text-red-400">{newsPost.categoryName}</span>
-                      <h4 className="mt-1 line-clamp-2 text-xs font-semibold leading-snug text-neutral-800 group-hover:text-red-700 dark:text-neutral-200">{newsPost.title}</h4>
+                      <h4 className="mt-1 line-clamp-2 text-sm font-semibold leading-snug text-neutral-800 group-hover:text-red-700 dark:text-neutral-200">{newsPost.title}</h4>
                       <time className="mt-1 block text-[10px] text-neutral-400">{newsPost.formattedDate}</time>
                     </Link>
                   ))}
