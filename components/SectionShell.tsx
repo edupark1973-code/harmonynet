@@ -8,8 +8,8 @@ export function SectionHeader() {
       <div className="subpage-topline">
         <div className="subpage-shell flex items-center justify-between">
           <span>HARMONYNET NEWS</span>
-          <span className="hidden sm:inline">지역과 대학, 사람을 잇는 콘텐츠 미디어</span>
-          <span>{new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' }).format(new Date())}</span>
+          <span>지역과 대학, 사람을 잇는 콘텐츠 미디어</span>
+          <span suppressHydrationWarning>{new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' }).format(new Date())}</span>
         </div>
       </div>
       <header className="subpage-header">

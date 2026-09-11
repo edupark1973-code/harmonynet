@@ -85,7 +85,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#f8f9fa] text-neutral-900 antialiased">
       <div className="border-b border-neutral-800 bg-neutral-900 text-xs text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5">
-          <span>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}</span>
+          <span suppressHydrationWarning>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })}</span>
           <div className="hidden items-center gap-3 sm:flex"><a href="https://huss.harmonynet.kr" target="_blank" rel="noreferrer" className="hover:text-red-300">웹진보기</a><span className="text-neutral-500">·</span><a href="https://pm100.stibee.com/" target="_blank" rel="noreferrer" className="font-bold text-red-300 hover:text-white">뉴스레터구독</a></div>
         </div>
       </div>

@@ -42,18 +42,9 @@ export default function SiteNav() {
 
   return (
     <nav className="border-t-2 border-red-700 border-b border-neutral-200 bg-white text-neutral-900 shadow-sm dark:border-red-600 dark:bg-neutral-900 dark:text-white">
-      <div className="mx-auto hidden max-w-7xl items-center px-4 text-[15px] font-semibold lg:flex">
+      <div className="mx-auto flex max-w-7xl items-center overflow-x-auto px-4 text-[15px] font-semibold">
         <MenuLinks pathname={pathname} />
       </div>
-      <details className="group mx-auto max-w-7xl lg:hidden">
-        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-bold">
-          <span>전체 메뉴</span>
-          <span className="text-red-700 transition group-open:rotate-180">▼</span>
-        </summary>
-        <div className="border-t border-neutral-200 bg-white text-sm dark:border-neutral-800 dark:bg-neutral-900">
-          <MenuLinks pathname={pathname} mobile />
-        </div>
-      </details>
     </nav>
   );
 }
