@@ -34,6 +34,7 @@ function getTerms(item: PortfolioItem) {
 export default function LocalCompanyGallery() {
   const [items, setItems] = useState<PortfolioItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selected, setSelected] = useState<PortfolioItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,9 +62,11 @@ export default function LocalCompanyGallery() {
     return [...termMap.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ko'));
   }, [items]);
 
-  const filteredItems = activeCategory
-    ? items.filter((item) => item.portfolio_category.includes(activeCategory))
-    : items;
+  const filteredItems = items.filter((item) => {
+    const matchesCategory = activeCategory === null || item.portfolio_category.includes(activeCategory);
+    const matchesName = !searchQuery.trim() || stripHtml(item.title.rendered).toLocaleLowerCase('ko-KR').includes(searchQuery.trim().toLocaleLowerCase('ko-KR'));
+    return matchesCategory && matchesName;
+  });
   const visibleItems = filteredItems.slice(0, visibleCount);
 
   function selectCategory(categoryId: number | null) {
@@ -82,6 +85,16 @@ export default function LocalCompanyGallery() {
   return (
     <section aria-label="로컬기업 목록">
       <div className="company-filter" role="group" aria-label="기업 분류">
+        <label className="company-search">
+          <span className="sr-only">기업명 검색</span>
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => { setSearchQuery(event.target.value); setVisibleCount(PAGE_SIZE); }}
+            placeholder="기업명 검색"
+            aria-label="기업명 검색"
+          />
+        </label>
         <button type="button" className={activeCategory === null ? 'is-active' : ''} onClick={() => selectCategory(null)}>전체 <span>{items.length}</span></button>
         {categories.map((category) => (
           <button key={category.id} type="button" className={activeCategory === category.id ? 'is-active' : ''} onClick={() => selectCategory(category.id)}>
@@ -128,7 +141,6 @@ export default function LocalCompanyGallery() {
             <div className="company-modal-copy">
               <small>{getTerms(selected).map((term) => term.name).join(' · ')}</small>
               <h2>{stripHtml(selected.title.rendered)}</h2>
-              <a href={selected.link.replace(/^http:/, 'https:')} target="_blank" rel="noreferrer">원본 기업 소개 보기 ↗</a>
             </div>
           </div>
         </div>

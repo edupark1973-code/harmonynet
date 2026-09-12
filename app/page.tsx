@@ -36,7 +36,7 @@ export default function HomePage() {
   const [posts, setPosts] = useState<NormalizedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [visibleReportCount, setVisibleReportCount] = useState(16);
+  const [visibleReportCount, setVisibleReportCount] = useState(12);
   const [companyItems, setCompanyItems] = useState<CompanyItem[]>([]);
 
   useEffect(() => {
