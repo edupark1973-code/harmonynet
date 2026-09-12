@@ -36,7 +36,7 @@ export default function HomePage() {
   const [posts, setPosts] = useState<NormalizedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [visibleReportCount, setVisibleReportCount] = useState(8);
+  const [visibleReportCount, setVisibleReportCount] = useState(16);
   const [companyItems, setCompanyItems] = useState<CompanyItem[]>([]);
 
   useEffect(() => {
@@ -139,9 +139,14 @@ export default function HomePage() {
               <div className="space-y-10">
                 <section>
                   <div className="home-section-heading"><h2>전체 뉴스</h2></div>
-                  <div className="mt-2 grid gap-x-6 md:grid-cols-2">
-                    {reportPosts.slice(0, visibleReportCount).map((post) => <NewsThumbnail key={post.id} post={post} />)}
+                  <div className="mt-2 grid gap-4">
+                    {reportPosts.slice(0, 8).map((post) => <NewsThumbnail key={post.id} post={post} />)}
                   </div>
+                  {reportPosts.length > 8 && (
+                    <div className="mt-6 grid gap-x-6 gap-y-4 md:grid-cols-2">
+                      {reportPosts.slice(8, visibleReportCount).map((post) => <NewsThumbnail key={post.id} post={post} />)}
+                    </div>
+                  )}
                   {visibleReportCount < reportPosts.length && (
                                        <div className="home-report-more">
                       <button type="button" onClick={() => setVisibleReportCount((count) => count + 4)}>
