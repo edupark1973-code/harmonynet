@@ -67,7 +67,12 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
 
       <header className="border-b border-neutral-300 bg-white dark:border-neutral-800 dark:bg-neutral-900">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6">
-          <SiteLogo className="w-[154px] sm:w-[178px]" />
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            <SiteLogo className="w-[138px] shrink-0 sm:w-[178px]" />
+            <span className="max-w-[150px] border-l border-neutral-300 pl-3 text-[10px] leading-snug text-neutral-500 sm:max-w-none sm:pl-4 sm:text-xs">
+              대전·세종 로컬기업&amp;대학 뉴스
+            </span>
+          </div>
         </div>
         <SiteNav />
       </header>

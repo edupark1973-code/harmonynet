@@ -99,8 +99,8 @@ export default function HomePage() {
       <header className="border-b border-neutral-300 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6">
           <div className="flex items-center gap-4">
-            <SiteLogo className="w-[178px] md:w-[210px]" />
-            <span className="hidden border-l border-neutral-300 pl-4 text-xs text-neutral-500 sm:block">대전·세종 로컬기업&대학 뉴스</span>
+            <SiteLogo className="w-[138px] shrink-0 sm:w-[178px] md:w-[210px]" />
+            <span className="max-w-[150px] border-l border-neutral-300 pl-3 text-[10px] leading-snug text-neutral-500 sm:max-w-none sm:pl-4 sm:text-xs">대전·세종 로컬기업&amp;대학 뉴스</span>
           </div>
           <form action="/search" method="GET" className="relative hidden items-center md:flex">
             <input name="q" placeholder="검색어를 입력하세요" className="w-72 border-b-2 border-neutral-900 py-2 pr-9 text-sm outline-none focus:border-red-700" />

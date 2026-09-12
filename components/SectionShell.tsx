@@ -14,7 +14,12 @@ export function SectionHeader() {
       </div>
       <header className="subpage-header">
         <div className="subpage-shell flex items-center justify-between py-5 sm:py-7">
-          <SiteLogo className="w-[154px] sm:w-[178px]" />
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            <SiteLogo className="w-[138px] shrink-0 sm:w-[178px]" />
+            <span className="max-w-[150px] border-l border-neutral-300 pl-3 text-[10px] leading-snug text-neutral-500 sm:max-w-none sm:pl-4 sm:text-xs">
+              대전·세종 로컬기업&amp;대학 뉴스
+            </span>
+          </div>
           <form action="/search" className="subpage-search hidden md:flex">
             <label htmlFor="subpage-search" className="sr-only">기사 검색</label>
             <input id="subpage-search" name="q" placeholder="뉴스 검색" />
