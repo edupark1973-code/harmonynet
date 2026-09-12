@@ -140,11 +140,11 @@ export default function HomePage() {
                 <section>
                   <div className="home-section-heading"><h2>전체 뉴스</h2></div>
                   <div className="mt-2 grid gap-4">
-                    {reportPosts.slice(0, 8).map((post) => <NewsThumbnail key={post.id} post={post} />)}
+                    {reportPosts.slice(0, 4).map((post) => <NewsThumbnail key={post.id} post={post} />)}
                   </div>
-                  {reportPosts.length > 8 && (
+                  {reportPosts.length > 4 && (
                     <div className="mt-6 grid gap-x-6 gap-y-4 md:grid-cols-2">
-                      {reportPosts.slice(8, visibleReportCount).map((post) => <NewsThumbnail key={post.id} post={post} />)}
+                      {reportPosts.slice(4, visibleReportCount).map((post) => <NewsThumbnail key={post.id} post={post} />)}
                     </div>
                   )}
                   {visibleReportCount < reportPosts.length && (
