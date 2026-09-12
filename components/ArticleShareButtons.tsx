@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 
 const KAKAO_JAVASCRIPT_KEY = '359d365a3841c3b538a428f8236aab92';
 const KAKAO_SDK_URL = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js';
+const PUBLIC_SITE_URL = 'https://harmonynet.kr';
 
 type KakaoSdk = {
   isInitialized: () => boolean;
@@ -28,7 +29,9 @@ function initializeKakao() {
 }
 
 function buildShareUrl(title: string, thumbnailUrl: string) {
-  const url = new URL(window.location.href);
+  // 카카오 제품 링크에 등록할 단일 정식 도메인을 사용합니다.
+  // Firebase App Hosting 기본 도메인이 메시지 링크에 섞이면 카카오가 이동을 차단할 수 있습니다.
+  const url = new URL(window.location.pathname, PUBLIC_SITE_URL);
   url.searchParams.set('title', title);
   url.searchParams.set('thumb', thumbnailUrl);
   return url.toString();
