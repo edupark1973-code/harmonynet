@@ -9,7 +9,7 @@ import SiteFooter from '@/components/SiteFooter';
 import SiteLogo from '@/components/SiteLogo';
 import SiteNav from '@/components/SiteNav';
 
-const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed=author,wp:featuredmedia,wp:term&per_page=100&_fields=id,date,slug,title,excerpt,content,categories,featured_media,_embedded';
+const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed=author,wp:featuredmedia,wp:term&per_page=100&orderby=date&order=desc&_fields=id,date,slug,title,excerpt,content,categories,featured_media,_embedded';
 const PORTFOLIO_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/portfolio?per_page=100&_embed=1';
 type CompanyItem = { id: number; title: { rendered: string }; content: { rendered: string }; _embedded?: { 'wp:featuredmedia'?: { source_url: string }[] } };
 const companyImage = (item: CompanyItem) => (item._embedded?.['wp:featuredmedia']?.[0]?.source_url || item.content.rendered.match(/(?:data-src|src)=["']([^"']+)["']/i)?.[1] || '').replace(/^http:\/\//i, 'https://');
@@ -41,14 +41,20 @@ export default function HomePage() {
 
   useEffect(() => {
     let active = true;
-    fetch(WP_DIRECT_URL, { headers: { Accept: 'application/json, text/plain, */*' } })
+    fetch(WP_DIRECT_URL, {
+      cache: 'no-store',
+      headers: { Accept: 'application/json, text/plain, */*' },
+    })
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
       })
       .then((data: WPPost[]) => {
         if (active) {
-          setPosts(data.map((post) => normalizePost(post)));
+          const latestFirst = data
+            .map((post) => normalizePost(post))
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          setPosts(latestFirst);
           setError(null);
         }
       })
@@ -69,8 +75,8 @@ export default function HomePage() {
   const reportPosts = posts.slice(5);
   const textListPosts = posts.slice(5, 24);
   // 원본 워드프레스의 실제 카테고리 slug(local/huss)로 분야를 분리합니다.
-  const localPosts = posts.filter((post) => post.categoryId === 25 || post.categorySlug === 'local').slice(2, 7);
-  const universityPosts = posts.filter((post) => post.categoryId === 72 || post.categorySlug === 'huss').slice(2, 7);
+  const localPosts = posts.filter((post) => post.categoryId === 25 || post.categorySlug === 'local').slice(3, 8);
+  const universityPosts = posts.filter((post) => post.categoryId === 72 || post.categorySlug === 'huss').slice(3, 8);
   const categoryGroups = useMemo(() => {
     const groups = new Map<string, NormalizedPost[]>();
     posts.forEach((post) => {
