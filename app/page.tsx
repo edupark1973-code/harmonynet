@@ -8,6 +8,7 @@ import { normalizePost } from '@/lib/wp';
 import SiteFooter from '@/components/SiteFooter';
 import SiteLogo from '@/components/SiteLogo';
 import SiteNav from '@/components/SiteNav';
+import { fetchPublishedLocalPosts } from '@/lib/localPosts';
 
 const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed=author,wp:featuredmedia,wp:term&per_page=100&orderby=date&order=desc&_fields=id,date,slug,title,excerpt,content,categories,featured_media,_embedded';
 const PORTFOLIO_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/portfolio?per_page=100&_embed=1';
@@ -41,18 +42,16 @@ export default function HomePage() {
 
   useEffect(() => {
     let active = true;
-    fetch(WP_DIRECT_URL, {
+    Promise.all([fetch(WP_DIRECT_URL, {
       cache: 'no-store',
       headers: { Accept: 'application/json, text/plain, */*' },
-    })
-      .then((response) => {
+    }).then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
-      })
-      .then((data: WPPost[]) => {
+      }) as Promise<WPPost[]>, fetchPublishedLocalPosts()])
+      .then(([data, localPosts]) => {
         if (active) {
-          const latestFirst = data
-            .map((post) => normalizePost(post))
+          const latestFirst = [...data.map((post) => normalizePost(post)), ...localPosts]
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           setPosts(latestFirst);
           setError(null);

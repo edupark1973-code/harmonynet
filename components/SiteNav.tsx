@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/components/AuthProvider';
 
 const MENU_ITEMS = [
   { label: '로컬소식', href: '/category/local' },
@@ -11,6 +12,7 @@ const MENU_ITEMS = [
 ];
 
 function MenuLinks({ pathname, mobile = false }: { pathname: string; mobile?: boolean }) {
+  const { user } = useAuth();
   return (
     <>
       <Link
@@ -25,14 +27,9 @@ function MenuLinks({ pathname, mobile = false }: { pathname: string; mobile?: bo
 
         return <Link key={item.label} href={item.href} className={className}>{item.label}</Link>;
       })}
-      <a
-        href="http://huss.harmonynet.kr/wp-admin"
-        target="_blank"
-        rel="noreferrer"
-        className={`${mobile ? 'block px-4 py-3' : 'ml-auto whitespace-nowrap px-3.5 py-3 text-xs'} font-semibold text-neutral-500 hover:text-red-700`}
-      >
-        로그인/기사작성 ↗
-      </a>
+      <Link href="/write" className={`${mobile ? 'block px-4 py-3' : 'ml-auto whitespace-nowrap px-3.5 py-3 text-xs'} font-semibold text-neutral-500 hover:text-red-700`}>
+        {user ? '기사 작성' : '로그인/기사 작성'}
+      </Link>
     </>
   );
 }

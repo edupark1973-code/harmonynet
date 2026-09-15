@@ -2,8 +2,11 @@
 
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
+import { doc, getDoc } from 'firebase/firestore';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
+import { getDb } from '@/lib/firebase';
+import { normalizeLocalPost } from '@/lib/localPosts';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
 import { SectionHeader } from '@/components/SectionShell';
@@ -35,6 +38,15 @@ export default function PostPage({ params }: PostPageProps) {
         setLoading(true);
         setError(null);
 
+        let targetWPPost: WPPost | null = null;
+        let localPost: NormalizedPost | null = null;
+
+        if (postIdOrSlug.startsWith('local-')) {
+          const localSnapshot = await getDoc(doc(getDb(), 'localPosts', postIdOrSlug.slice('local-'.length)));
+          if (localSnapshot.exists() && localSnapshot.data().status === 'published') {
+            localPost = normalizeLocalPost(postIdOrSlug, localSnapshot.data());
+          }
+        } else {
         const isNumericId = /^\d+$/.test(postIdOrSlug);
         let targetUrl = `${WP_POSTS_URL}?_embed=1&include=${encodeURIComponent(postIdOrSlug)}&per_page=1`;
 
@@ -49,12 +61,11 @@ export default function PostPage({ params }: PostPageProps) {
         }
 
         const data = await res.json();
-        let targetWPPost: WPPost | null = null;
-
         if (Array.isArray(data)) {
           targetWPPost = data[0] || null;
         } else if (data && data.id) {
           targetWPPost = data;
+        }
         }
 
         // 관련 기사 및 인기 랭킹용 기사 5건 추가 페치
@@ -76,7 +87,9 @@ export default function PostPage({ params }: PostPageProps) {
         }
 
         if (isMounted) {
-          if (targetWPPost) {
+          if (localPost) {
+            setPost(localPost);
+          } else if (targetWPPost) {
             setPost(normalizePost(targetWPPost));
           } else {
             setError('해당 기사를 찾을 수 없습니다.');

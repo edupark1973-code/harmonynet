@@ -3,6 +3,18 @@ schemaVersion: v1
 env:
   - variable: NEXT_PUBLIC_WP_API_URL
     value: "https://huss.harmonynet.kr/wp-json/wp/v2"
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyDtWU0nECaHfisrWO3nSUe6Wed_cS2-UTI"
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "harmonynet.firebaseapp.com"
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "harmonynet"
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "harmonynet.firebasestorage.app"
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "195292744781"
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:195292744781:web:16ebd57c07cd37cf292004"
 runConfig:
   region: asia-east1
   concurrency: 80
