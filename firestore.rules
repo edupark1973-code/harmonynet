@@ -21,7 +21,8 @@ service cloud.firestore {
     }
 
     match /localPosts/{postId} {
-      allow read: if resource.data.status == 'published'
+      allow read: if isAdmin()
+        || resource.data.status == 'published'
         || (request.auth != null && request.auth.uid == resource.data.authorId);
       allow create: if request.auth != null
         && isWriter()
