@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
@@ -225,24 +224,6 @@ export default function PostPage({ params }: PostPageProps) {
               {post.excerpt && (
                 <div className="mb-6 rounded-lg bg-neutral-50 p-4 border-l-4 border-red-700 font-serif text-sm font-semibold leading-relaxed text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200">
                   💡 {post.excerpt}
-                </div>
-              )}
-
-              {/* 대표 이미지 */}
-              {post.imageUrl && (
-                <div className="mb-8">
-                  <div className="relative aspect-[16/9] w-full overflow-hidden rounded bg-neutral-100 dark:bg-neutral-800">
-                    <Image
-                      src={post.imageUrl}
-                      alt={post.imageAlt}
-                      fill
-                      unoptimized={post.imageUrl.startsWith('data:')}
-                      className="object-cover"
-                    />
-                  </div>
-                  <p className="mt-2 text-center text-xs text-neutral-500">
-                    ▲ {post.imageAlt} (사진=하모니넷 DB)
-                  </p>
                 </div>
               )}
 
