@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { getAuthClient, getDb, googleProvider, isFirebaseConfigured } from '@/lib/firebase';
 
 type UserRole = 'reader' | 'writer' | 'admin';
+const ADMIN_EMAIL = 'edupark1973@gmail.com';
 
 type AuthContextValue = {
   user: User | null;
@@ -41,12 +42,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await setDoc(profileRef, {
             displayName: nextUser.displayName || '하모니넷 사용자',
             email: nextUser.email || '',
-            role: 'reader',
+            role: nextUser.email?.toLowerCase() === ADMIN_EMAIL ? 'admin' : 'reader',
             createdAt: new Date().toISOString(),
           });
+          if (nextUser.email?.toLowerCase() === ADMIN_EMAIL) setRole('admin');
         } else {
           const savedRole = profile.data().role;
-          if (savedRole === 'writer' || savedRole === 'admin') setRole(savedRole);
+          if (nextUser.email?.toLowerCase() === ADMIN_EMAIL) setRole('admin');
+          else if (savedRole === 'writer' || savedRole === 'admin') setRole(savedRole);
         }
       }
       setLoading(false);

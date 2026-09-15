@@ -2,10 +2,21 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'edupark1973@gmail.com';
+    }
+
+    function isWriter() {
+      return isAdmin()
+        || (request.auth != null
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['writer', 'admin']);
+    }
+
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null && request.auth.uid == userId
-        && request.resource.data.role == 'reader';
+        && (request.resource.data.role == 'reader' || isAdmin());
       allow update: if false;
     }
 
@@ -13,15 +24,18 @@ service cloud.firestore {
       allow read: if resource.data.status == 'published'
         || (request.auth != null && request.auth.uid == resource.data.authorId);
       allow create: if request.auth != null
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['writer', 'admin']
+        && isWriter()
         && request.resource.data.authorId == request.auth.uid
         && request.resource.data.status in ['draft', 'pending'];
       allow update: if request.auth != null
-        && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        && (isAdmin()
+          || (request.auth != null
+            && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
           || (request.auth.uid == resource.data.authorId
             && request.resource.data.status in ['draft', 'pending']));
       allow delete: if request.auth != null
         && (request.auth.uid == resource.data.authorId
+          || isAdmin()
           || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
     }
   }
