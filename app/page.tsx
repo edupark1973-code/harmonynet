@@ -52,6 +52,7 @@ export default function HomePage() {
       .then(([data, localPosts, hiddenIds]) => {
         if (active) {
           const latestFirst = [...data.filter((post) => !hiddenIds.has(post.id)).map((post) => normalizePost(post)), ...localPosts]
+            .filter((post) => post.categorySlug !== 'opinion')
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           setPosts(latestFirst);
           setError(null);
@@ -70,7 +71,6 @@ export default function HomePage() {
 
   const heroPost = posts[0];
   const latestPosts = posts.slice(1, 5);
-  const opinionPosts = posts.slice(5, 8);
   const reportPosts = posts.slice(5);
   const textListPosts = posts.slice(5, 24);
   // 원본 워드프레스의 실제 카테고리 slug(local/huss)로 분야를 분리합니다.

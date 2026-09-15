@@ -7,6 +7,7 @@ import { useAuth } from '@/components/AuthProvider';
 const MENU_ITEMS = [
   { label: '로컬소식', href: '/category/local' },
   { label: '대학소식', href: '/category/huss' },
+  { label: '오피니언', href: '/category/opinion' },
   { label: '로컬기업소개', href: '/section/startup' },
   { label: '민간자격과정', href: '/certifications' },
 ];

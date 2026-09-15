@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
-import { fetchHiddenExternalPostIds } from '@/lib/localPosts';
+import { fetchHiddenExternalPostIds, fetchPublishedLocalPosts } from '@/lib/localPosts';
 import { SectionFooter, SectionHeader } from '@/components/SectionShell';
 
 interface CategoryPageProps {
@@ -15,11 +15,13 @@ interface CategoryPageProps {
 const CATEGORY_NAMES: Record<string, string> = {
   huss: '대학소식',
   local: '로컬 소식',
+  opinion: '오피니언',
 };
 
 const CATEGORY_ENGLISH: Record<string, string> = {
   huss: 'HUSS CAMPUS NEWS',
   local: 'LOCAL & COMMUNITY',
+  opinion: 'COLUMNS & PERSPECTIVES',
 };
 
 const CATEGORY_IDS: Record<string, number> = { huss: 72, local: 25 };
@@ -39,6 +41,11 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     async function loadCategoryPosts() {
       try {
         setLoading(true);
+        if (slug === 'opinion') {
+          const localPosts = await fetchPublishedLocalPosts();
+          if (isMounted) setPosts(localPosts.filter((post) => post.categorySlug === 'opinion'));
+          return;
+        }
         const categoryId = CATEGORY_IDS[slug];
         const endpoint = categoryId
           ? `${WP_POSTS_URL}?_embed=1&categories=${categoryId}&per_page=20`
@@ -89,7 +96,39 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           </div>
         ) : (
           <>
-            <section className="category-lead-grid">
+            {slug === 'opinion' ? (
+              <section className="opinion-archive">
+                <div className="border-b-2 border-neutral-900 pb-5">
+                  <p className="text-sm font-semibold leading-7 text-neutral-600">지역과 대학의 오늘을 바라보는 다양한 시선</p>
+                  <p className="mt-1 text-xs tracking-wide text-neutral-500">칼럼 · 논평 · 기획 · 제안</p>
+                </div>
+                {posts.length === 0 ? (
+                  <div className="py-20 text-center">
+                    <p className="font-serif text-2xl font-bold">아직 등록된 오피니언이 없습니다.</p>
+                    <p className="mt-3 text-sm text-neutral-500">하모니넷의 새로운 생각을 기다리고 있습니다.</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-neutral-300">
+                    {posts.slice(0, visibleListCount).map((post, index) => (
+                      <article key={post.id} className="group py-7 sm:py-9">
+                        <Link href={`/posts/${post.id}`} className="grid gap-4 sm:grid-cols-[72px_minmax(0,1fr)_150px] sm:items-start sm:gap-7">
+                          <span className="font-serif text-3xl font-bold text-red-700/80">{String(index + 1).padStart(2, '0')}</span>
+                          <div>
+                            <span className="text-[10px] font-bold tracking-[0.18em] text-red-700">OPINION</span>
+                            <h2 className="mt-2 font-serif text-2xl font-extrabold leading-tight tracking-[-.035em] transition group-hover:text-red-700 sm:text-3xl">{post.title}</h2>
+                            <p className="mt-3 line-clamp-2 max-w-2xl text-sm leading-7 text-neutral-600">{post.excerpt}</p>
+                          </div>
+                          <div className="text-xs text-neutral-500 sm:pt-1 sm:text-right"><p>{post.authorName}</p><time className="mt-2 block">{post.formattedDate}</time></div>
+                        </Link>
+                      </article>
+                    ))}
+                  </div>
+                )}
+                {visibleListCount < posts.length && (
+                  <div className="home-report-more mt-6"><button type="button" onClick={() => setVisibleListCount((count) => count + 10)}>더 많은 오피니언 보기 <span>+{Math.min(10, posts.length - visibleListCount)}</span></button></div>
+                )}
+              </section>
+            ) : <section className="category-lead-grid">
               {featuredPost && (
                 <article className="category-lead group">
                   <Link href={`/posts/${featuredPost.id}`}>
@@ -124,7 +163,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                   </article>
                 ))}
               </div>
-            </section>
+            </section>}
             <section className="latest-section">
               <div className="latest-heading"><h2>최신 기사</h2></div>
               <div className="article-list">

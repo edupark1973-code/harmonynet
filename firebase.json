@@ -1,4 +1,17 @@
 {
+  "apphosting": [
+    {
+      "backendId": "harmonynet",
+      "rootDir": ".",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "alwaysDeployFromSource": true
+    }
+  ],
   "firestore": {
     "rules": "firestore.rules"
   },
