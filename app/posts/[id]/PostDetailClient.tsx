@@ -220,13 +220,6 @@ export default function PostPage({ params }: PostPageProps) {
                 </div>
               </div>
 
-              {/* 핵심 요약 하이라이트 박스 */}
-              {post.excerpt && (
-                <div className="mb-6 rounded-lg bg-neutral-50 p-4 border-l-4 border-red-700 font-serif text-sm font-semibold leading-relaxed text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200">
-                  💡 {post.excerpt}
-                </div>
-              )}
-
               {/* 기사 본문 (폰트 크기 동적 조절) */}
               <div
                 className={`wp-content article-body prose prose-zinc max-w-none font-serif leading-relaxed dark:prose-invert prose-headings:font-serif prose-a:text-red-700 ${
