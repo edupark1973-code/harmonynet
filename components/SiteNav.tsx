@@ -12,7 +12,7 @@ const MENU_ITEMS = [
 ];
 
 function MenuLinks({ pathname, mobile = false }: { pathname: string; mobile?: boolean }) {
-  const { user, role } = useAuth();
+  const { user, role, signOutUser } = useAuth();
   return (
     <>
       <Link
@@ -31,6 +31,7 @@ function MenuLinks({ pathname, mobile = false }: { pathname: string; mobile?: bo
         {user ? '기사 작성' : '로그인/기사 작성'}
       </Link>
       {role === 'admin' && <Link href="/admin/articles" className={`${mobile ? 'block px-4 py-3' : 'whitespace-nowrap px-3.5 py-3 text-xs'} font-bold text-red-700 hover:text-red-800`}>기사 관리</Link>}
+      {user && <button type="button" onClick={() => signOutUser()} className={`${mobile ? 'block px-4 py-3 text-left' : 'whitespace-nowrap px-3.5 py-3 text-xs'} font-semibold text-neutral-500 hover:text-red-700`}>로그아웃</button>}
     </>
   );
 }
