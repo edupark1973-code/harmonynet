@@ -50,3 +50,14 @@ export async function fetchPublishedLocalPosts(): Promise<NormalizedPost[]> {
     return [];
   }
 }
+
+export async function fetchHiddenExternalPostIds(): Promise<Set<number>> {
+  if (!isFirebaseConfigured) return new Set();
+  try {
+    const snapshot = await getDocs(collection(getDb(), 'hiddenExternalPosts'));
+    return new Set(snapshot.docs.map((item) => Number(item.id)).filter((id) => Number.isInteger(id) && id > 0));
+  } catch (error) {
+    console.error('Hidden external posts fetch error:', error);
+    return new Set();
+  }
+}

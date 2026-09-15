@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { getDb } from '@/lib/firebase';
 import { useAuth } from '@/components/AuthProvider';
@@ -21,6 +21,8 @@ export default function AdminArticlesPage() {
   const { user, role, loading } = useAuth();
   const [articles, setArticles] = useState<LocalArticle[]>([]);
   const [message, setMessage] = useState('');
+  const [hiddenIds, setHiddenIds] = useState<string[]>([]);
+  const [externalId, setExternalId] = useState('');
 
   async function loadArticles() {
     if (role !== 'admin') return;
@@ -30,8 +32,14 @@ export default function AdminArticlesPage() {
     setArticles(nextArticles);
   }
 
+  async function loadHiddenIds() {
+    if (role !== 'admin') return;
+    const snapshot = await getDocs(collection(getDb(), 'hiddenExternalPosts'));
+    setHiddenIds(snapshot.docs.map((item) => item.id).sort((a, b) => Number(a) - Number(b)));
+  }
+
   useEffect(() => {
-    loadArticles().catch(() => setMessage('기사를 불러오지 못했습니다.'));
+    Promise.all([loadArticles(), loadHiddenIds()]).catch(() => setMessage('데이터를 불러오지 못했습니다.'));
   }, [role]);
 
   async function changeStatus(id: string, status: 'published' | 'rejected') {
@@ -45,6 +53,30 @@ export default function AdminArticlesPage() {
     await deleteDoc(doc(getDb(), 'localPosts', id));
     setMessage('기사를 삭제했습니다.');
     await loadArticles();
+  }
+
+  async function hideExternalArticle(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const id = externalId.trim();
+    if (!/^\d+$/.test(id)) {
+      setMessage('휴스하모니넷 기사 ID를 숫자로 입력해 주세요.');
+      return;
+    }
+    await setDoc(doc(getDb(), 'hiddenExternalPosts', id), {
+      source: 'huss',
+      externalId: Number(id),
+      hiddenBy: user?.email || '',
+      hiddenAt: new Date().toISOString(),
+    });
+    setExternalId('');
+    setMessage(`기사 ${id}를 하모니넷에서 숨겼습니다.`);
+    await loadHiddenIds();
+  }
+
+  async function restoreExternalArticle(id: string) {
+    await deleteDoc(doc(getDb(), 'hiddenExternalPosts', id));
+    setMessage(`기사 ${id}를 다시 표시합니다.`);
+    await loadHiddenIds();
   }
 
   return (
@@ -62,6 +94,17 @@ export default function AdminArticlesPage() {
           </div>
         )}
         <Link href="/" className="mt-6 inline-block text-sm font-semibold text-neutral-500 hover:text-red-700">← 메인으로 돌아가기</Link>
+        {user && role === 'admin' && (
+          <section className="mt-8 rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
+            <h2 className="font-serif text-xl font-bold">휴스 기사 숨김 관리</h2>
+            <p className="mt-2 text-sm text-neutral-600">휴스하모니넷 원본은 유지하고, 하모니넷에서만 숨길 수 있습니다.</p>
+            <form onSubmit={hideExternalArticle} className="mt-4 flex max-w-xl gap-2">
+              <input value={externalId} onChange={(event) => setExternalId(event.target.value)} inputMode="numeric" className="min-w-0 flex-1 rounded border border-neutral-300 px-3 py-2 text-sm" placeholder="휴스 기사 ID (예: 8493)" />
+              <button className="rounded bg-neutral-900 px-4 py-2 text-sm font-bold text-white">하모니넷에서 숨기기</button>
+            </form>
+            {hiddenIds.length > 0 && <div className="mt-4 flex flex-wrap gap-2">{hiddenIds.map((id) => <button key={id} onClick={() => restoreExternalArticle(id)} className="rounded-full border border-red-200 px-3 py-1 text-xs text-red-700 hover:bg-red-50">기사 {id} ×</button>)}</div>}
+          </section>
+        )}
       </main>
       <SiteFooter />
     </div>

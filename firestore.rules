@@ -39,5 +39,10 @@ service cloud.firestore {
           || isAdmin()
           || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
     }
+
+    match /hiddenExternalPosts/{postId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }

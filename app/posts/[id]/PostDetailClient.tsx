@@ -6,7 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
 import { getDb } from '@/lib/firebase';
-import { normalizeLocalPost } from '@/lib/localPosts';
+import { fetchHiddenExternalPostIds, normalizeLocalPost } from '@/lib/localPosts';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
 import { SectionHeader } from '@/components/SectionShell';
@@ -69,6 +69,12 @@ export default function PostPage({ params }: PostPageProps) {
         }
 
         // 관련 기사 및 인기 랭킹용 기사 5건 추가 페치
+        const hiddenIds = await fetchHiddenExternalPostIds();
+        if (targetWPPost && hiddenIds.has(targetWPPost.id)) {
+          setError('이 기사는 하모니넷에서 숨김 처리되었습니다.');
+          return;
+        }
+
         const categoryId = targetWPPost?.categories?.[0];
         const relatedEndpoint = categoryId
           ? `${WP_POSTS_URL}?_embed=1&categories=${categoryId}&per_page=10`

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { normalizePost } from '@/lib/wp';
+import { fetchHiddenExternalPostIds } from '@/lib/localPosts';
 import { SectionFooter, SectionHeader } from '@/components/SectionShell';
 
 interface CategoryPageProps {
@@ -44,9 +45,9 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           : `${WP_POSTS_URL}?_embed=1&per_page=20`;
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Status ${res.status}`);
-        const data: WPPost[] = await res.json();
+        const [data, hiddenIds] = await Promise.all([res.json() as Promise<WPPost[]>, fetchHiddenExternalPostIds()]);
         if (isMounted) {
-          setPosts(data.map((post) => normalizePost(post)));
+          setPosts(data.filter((post) => !hiddenIds.has(post.id)).map((post) => normalizePost(post)));
         }
       } catch (err) {
         console.error('Category fetch error:', err);
