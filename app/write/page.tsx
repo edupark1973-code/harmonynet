@@ -26,6 +26,10 @@ export default function WritePage() {
       setMessage('제목과 본문을 입력해 주세요.');
       return;
     }
+    if (!imageFile) {
+      setMessage('대표이미지를 등록해 주세요. 대표이미지는 본문 맨 위에도 자동으로 들어갑니다.');
+      return;
+    }
 
     setSaving(true);
     setMessage('');
@@ -96,7 +100,7 @@ export default function WritePage() {
             <div className="flex items-center justify-between text-xs text-neutral-500"><span>{user.displayName || user.email}</span><button type="button" onClick={() => signOutUser()} className="text-red-700 hover:underline">로그아웃</button></div>
             <label className="block"><span className="mb-2 block text-sm font-bold">제목</span><input value={title} onChange={(event) => setTitle(event.target.value)} className="w-full rounded border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-red-700" placeholder="기사 제목을 입력하세요" /></label>
             <label className="block"><span className="mb-2 block text-sm font-bold">분야</span><select value={category} onChange={(event) => setCategory(event.target.value)} className="rounded border border-neutral-300 px-4 py-3 text-sm"><option value="local">로컬소식</option><option value="huss">HUSS소식</option><option value="opinion">오피니언</option></select></label>
-            <label className="block"><span className="mb-2 block text-sm font-bold">대표이미지</span><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setImageFile(event.target.files?.[0] || null)} className="block w-full rounded border border-neutral-300 px-3 py-2 text-sm" /><p className="mt-1 text-xs text-neutral-500">JPG, PNG, WebP, GIF / 10MB 이하</p></label>
+            <label className="block"><span className="mb-2 block text-sm font-bold">대표이미지</span><input required type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setImageFile(event.target.files?.[0] || null)} className="block w-full rounded border border-neutral-300 px-3 py-2 text-sm" /><p className="mt-1 text-xs text-neutral-500">JPG, PNG, WebP, GIF / 10MB 이하 · 본문 맨 위에도 자동 삽입됩니다.</p></label>
             <label className="block"><span className="mb-2 block text-sm font-bold">본문</span><textarea value={content} onChange={(event) => setContent(event.target.value)} className="min-h-80 w-full rounded border border-neutral-300 px-4 py-3 text-sm leading-7 outline-none focus:border-red-700" placeholder="기사 본문을 입력하세요" /></label>
             <div className="flex flex-wrap items-center gap-3"><select value={status} onChange={(event) => setStatus(event.target.value as 'draft' | 'pending')} className="rounded border border-neutral-300 px-3 py-2 text-sm"><option value="pending">검토 요청</option><option value="draft">임시저장</option></select><button disabled={saving} className="rounded bg-red-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-800 disabled:opacity-50">{saving ? '저장 중...' : '기사 저장'}</button></div>
             {message && <p className="text-sm text-red-700">{message}</p>}
