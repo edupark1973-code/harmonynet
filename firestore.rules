@@ -14,10 +14,12 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == userId);
       allow create: if request.auth != null && request.auth.uid == userId
         && (request.resource.data.role == 'reader' || isAdmin());
-      allow update: if false;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role'])
+        && request.resource.data.role in ['reader', 'writer', 'admin'];
     }
 
     match /localPosts/{postId} {
@@ -25,15 +27,16 @@ service cloud.firestore {
         || resource.data.status == 'published'
         || (request.auth != null && request.auth.uid == resource.data.authorId);
       allow create: if request.auth != null
-        && isWriter()
         && request.resource.data.authorId == request.auth.uid
-        && request.resource.data.status in ['draft', 'pending'];
+        && (request.resource.data.status in ['draft', 'pending']
+          || (isWriter() && request.resource.data.status == 'published'));
       allow update: if request.auth != null
         && (isAdmin()
           || (request.auth != null
             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
           || (request.auth.uid == resource.data.authorId
-            && request.resource.data.status in ['draft', 'pending']));
+            && (request.resource.data.status in ['draft', 'pending']
+              || (isWriter() && request.resource.data.status == 'published'))));
       allow delete: if request.auth != null
         && (request.auth.uid == resource.data.authorId
           || isAdmin()
