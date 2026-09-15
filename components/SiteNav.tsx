@@ -9,6 +9,8 @@ const MENU_ITEMS = [
   { label: '대학소식', href: '/category/huss' },
   { label: '오피니언', href: '/category/opinion' },
   { label: '로컬기업소개', href: '/section/startup' },
+  { label: '기프트릿', href: 'https://gift.harmonynet.kr/', external: true },
+  { label: 'EduFiles', href: 'https://jyp-mentor.web.app/', external: true },
   { label: '민간자격과정', href: '/certifications' },
 ];
 
@@ -26,7 +28,7 @@ function MenuLinks({ pathname, mobile = false }: { pathname: string; mobile?: bo
         const active = pathname.startsWith(item.href);
         const className = `${mobile ? 'block border-b px-4 py-3' : 'whitespace-nowrap px-3.5 py-3'} transition ${active ? 'font-bold text-red-700' : 'hover:text-red-700'}`;
 
-        return <Link key={item.label} href={item.href} className={className}>{item.label}</Link>;
+        return item.external ? <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className={className}>{item.label}</a> : <Link key={item.label} href={item.href} className={className}>{item.label}</Link>;
       })}
       <Link href="/write" className={`${mobile ? 'block px-4 py-3' : 'ml-auto whitespace-nowrap px-3.5 py-3 text-xs'} font-semibold text-neutral-500 hover:text-red-700`}>
         {user ? '기사 작성' : '로그인/기사 작성'}
