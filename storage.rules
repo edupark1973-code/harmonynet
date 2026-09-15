@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'edupark1973@gmail.com';
+    }
+
+    function isWriter() {
+      return isAdmin()
+        || (request.auth != null
+          && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role in ['writer', 'admin']);
+    }
+
+    match /article-images/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && isWriter()
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+  }
+}
