@@ -28,7 +28,7 @@ export default function EditArticlePage({ params }: EditPageProps) {
     if (!user) return;
     getDoc(doc(getDb(), 'localPosts', id)).then((snapshot) => {
       const data = snapshot.data();
-      if (!snapshot.exists() || !data || data.authorId !== user.uid || !['draft', 'pending'].includes(data.status)) {
+      if (!snapshot.exists() || !data || data.authorId !== user.uid || !['draft', 'pending', 'published'].includes(data.status)) {
         setMessage('수정할 수 없는 기사입니다.');
         return;
       }
@@ -57,7 +57,7 @@ export default function EditArticlePage({ params }: EditPageProps) {
       await updateDoc(doc(getDb(), 'localPosts', id), { title: title.trim(), content: content.trim(), category, status, imageUrl: nextImageUrl, imageAlt: title.trim(), updatedAt: new Date().toISOString() });
       setImageUrl(nextImageUrl);
       setImageFile(null);
-      setMessage('기사가 수정되었습니다.');
+      setMessage(status === 'pending' && imageUrl ? '수정되었습니다. 관리자 재승인 후 공개됩니다.' : '기사가 수정되었습니다.');
     } catch (error) {
       console.error('Local article update error:', error);
       setMessage('수정하지 못했습니다.');
