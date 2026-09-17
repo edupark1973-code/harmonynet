@@ -148,7 +148,7 @@ export function normalizePost(
     .flat()
     .filter((term) => term.taxonomy === 'category');
   const primaryCategory = categoriesList.find((term) => term.taxonomy === 'category');
-  const categoryName = primaryCategory?.name || '지역소식';
+  const categoryName = primaryCategory?.slug === 'huss' ? '대학소식' : primaryCategory?.name || '지역소식';
   const categoryId = primaryCategory?.id || (post.categories?.[0] ?? null);
   const categorySlug = primaryCategory?.slug || 'news';
 
