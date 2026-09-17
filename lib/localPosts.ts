@@ -45,7 +45,7 @@ export function normalizeLocalPost(id: string, data: Record<string, unknown>): N
     imageUrl: imageUrl || DEFAULT_FALLBACK_IMAGE,
     imageAlt: title,
     authorName: typeof data.authorName === 'string' ? data.authorName : '하모니넷 작성자',
-    categoryName: category === 'huss' ? 'HUSS소식' : category === 'opinion' ? '오피니언' : '로컬소식',
+    categoryName: category === 'huss' ? '대학소식' : category === 'opinion' ? '오피니언' : '로컬소식',
     categoryId: null,
     categorySlug: category,
   };

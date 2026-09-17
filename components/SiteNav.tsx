@@ -12,7 +12,9 @@ const MENU_ITEMS = [
   { label: '기프트릿', href: 'https://gift.harmonynet.kr/', external: true },
   { label: 'EduFiles', href: 'https://jyp-mentor.web.app/', external: true },
   { label: '민간자격과정', href: '/certifications' },
-];
+].flatMap((item) => item.href === '/section/startup'
+  ? [item, { label: '콘텐츠기업소식', href: 'https://contentsfocus.com/', external: true }]
+  : [item]);
 
 function MenuLinks({ pathname, mobile = false }: { pathname: string; mobile?: boolean }) {
   const { user, role, signOutUser } = useAuth();
