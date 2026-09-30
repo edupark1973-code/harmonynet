@@ -4,7 +4,7 @@ import { useEffect, useState, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
-import { normalizePost } from '@/lib/wp';
+import { fetchExternalCategoryOverrides, normalizeExternalPost } from '@/lib/externalPosts';
 import { fetchHiddenExternalPostIds } from '@/lib/localPosts';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
@@ -33,9 +33,9 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
           : `${WP_POSTS_URL}?_embed=1&per_page=20`;
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Status ${res.status}`);
-        const [data, hiddenIds] = await Promise.all([res.json() as Promise<WPPost[]>, fetchHiddenExternalPostIds()]);
+        const [data, hiddenIds, overrides] = await Promise.all([res.json() as Promise<WPPost[]>, fetchHiddenExternalPostIds(), fetchExternalCategoryOverrides()]);
         if (isMounted) {
-          setPosts(data.filter((post) => !hiddenIds.has(post.id)).map((post) => normalizePost(post)));
+          setPosts(data.filter((post) => !hiddenIds.has(post.id)).map((post) => normalizeExternalPost(post, overrides)));
         }
       } catch (err) {
         console.error('Search fetch error:', err);

@@ -4,8 +4,8 @@ import { useEffect, useState, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
-import { normalizePost } from '@/lib/wp';
 import { fetchHiddenExternalPostIds, fetchPublishedLocalPosts } from '@/lib/localPosts';
+import { fetchExternalCategoryOverrides, normalizeExternalPost } from '@/lib/externalPosts';
 import { SectionFooter, SectionHeader } from '@/components/SectionShell';
 
 interface CategoryPageProps {
@@ -43,7 +43,10 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         setLoading(true);
         if (slug === 'opinion') {
           const localPosts = await fetchPublishedLocalPosts();
-          if (isMounted) setPosts(localPosts.filter((post) => post.categorySlug === 'opinion'));
+          if (isMounted) {
+            setVisibleListCount(10);
+            setPosts(localPosts.filter((post) => post.categorySlug === 'opinion'));
+          }
           return;
         }
         const categoryId = CATEGORY_IDS[slug];
@@ -52,9 +55,25 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           : `${WP_POSTS_URL}?_embed=1&per_page=20`;
         const res = await fetch(endpoint);
         if (!res.ok) throw new Error(`Status ${res.status}`);
-        const [data, hiddenIds] = await Promise.all([res.json() as Promise<WPPost[]>, fetchHiddenExternalPostIds()]);
+        const [data, hiddenIds, overrides] = await Promise.all([
+          res.json() as Promise<WPPost[]>,
+          fetchHiddenExternalPostIds(),
+          fetchExternalCategoryOverrides(),
+        ]);
+        const movedIds = [...overrides].filter(([, category]) => category === slug).map(([id]) => id);
+        const movedPosts = (await Promise.all(Array.from({ length: Math.ceil(movedIds.length / 50) }, async (_, index) => {
+          const ids = movedIds.slice(index * 50, index * 50 + 50);
+          const response = await fetch(`${WP_POSTS_URL}?_embed=1&include=${ids.join(',')}&per_page=50`);
+          return response.ok ? await response.json() as WPPost[] : [];
+        }))).flat();
         if (isMounted) {
-          setPosts(data.filter((post) => !hiddenIds.has(post.id)).map((post) => normalizePost(post)));
+          setVisibleListCount(10);
+          const uniquePosts = new Map([...data, ...movedPosts].map((post) => [post.id, post]));
+          setPosts([...uniquePosts.values()]
+            .filter((post) => !hiddenIds.has(post.id))
+            .map((post) => normalizeExternalPost(post, overrides))
+            .filter((post) => post.categorySlug === slug || (!overrides.has(Number(post.id)) && post.categoryId === categoryId))
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
         }
       } catch (err) {
         console.error('Category fetch error:', err);
@@ -67,10 +86,6 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     return () => {
       isMounted = false;
     };
-  }, [slug]);
-
-  useEffect(() => {
-    setVisibleListCount(10);
   }, [slug]);
 
   const featuredPost = posts[0];

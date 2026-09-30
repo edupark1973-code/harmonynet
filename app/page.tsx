@@ -4,11 +4,11 @@ import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
-import { normalizePost } from '@/lib/wp';
 import SiteFooter from '@/components/SiteFooter';
 import SiteLogo from '@/components/SiteLogo';
 import SiteNav from '@/components/SiteNav';
 import { fetchHiddenExternalPostIds, fetchPublishedLocalPosts } from '@/lib/localPosts';
+import { fetchExternalCategoryOverrides, normalizeExternalPost } from '@/lib/externalPosts';
 
 const WP_DIRECT_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/posts?_embed=author,wp:featuredmedia,wp:term&per_page=100&orderby=date&order=desc&_fields=id,date,slug,title,excerpt,content,categories,featured_media,_embedded';
 const PORTFOLIO_URL = 'https://huss.harmonynet.kr/wp-json/wp/v2/portfolio?per_page=100&_embed=1';
@@ -48,10 +48,10 @@ export default function HomePage() {
     }).then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.json();
-      }) as Promise<WPPost[]>, fetchPublishedLocalPosts(), fetchHiddenExternalPostIds()])
-      .then(([data, localPosts, hiddenIds]) => {
+      }) as Promise<WPPost[]>, fetchPublishedLocalPosts(), fetchHiddenExternalPostIds(), fetchExternalCategoryOverrides()])
+      .then(([data, localPosts, hiddenIds, categories]) => {
         if (active) {
-          const latestFirst = [...data.filter((post) => !hiddenIds.has(post.id)).map((post) => normalizePost(post)), ...localPosts]
+          const latestFirst = [...data.filter((post) => !hiddenIds.has(post.id)).map((post) => normalizeExternalPost(post, categories)), ...localPosts]
             .filter((post) => post.categorySlug !== 'opinion')
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           setPosts(latestFirst);

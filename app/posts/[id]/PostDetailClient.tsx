@@ -4,7 +4,7 @@ import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { doc, getDoc } from 'firebase/firestore';
 import { WPPost, NormalizedPost } from '@/types/post';
-import { normalizePost } from '@/lib/wp';
+import { fetchExternalCategoryOverrides, normalizeExternalPost } from '@/lib/externalPosts';
 import { getDb } from '@/lib/firebase';
 import { fetchHiddenExternalPostIds, normalizeLocalPost } from '@/lib/localPosts';
 import SiteNav from '@/components/SiteNav';
@@ -69,7 +69,7 @@ export default function PostPage({ params }: PostPageProps) {
         }
 
         // 관련 기사 및 인기 랭킹용 기사 5건 추가 페치
-        const hiddenIds = await fetchHiddenExternalPostIds();
+        const [hiddenIds, overrides] = await Promise.all([fetchHiddenExternalPostIds(), fetchExternalCategoryOverrides()]);
         if (targetWPPost && hiddenIds.has(targetWPPost.id)) {
           setError('이 기사는 하모니넷에서 숨김 처리되었습니다.');
           return;
@@ -96,7 +96,7 @@ export default function PostPage({ params }: PostPageProps) {
           if (localPost) {
             setPost(localPost);
           } else if (targetWPPost) {
-            setPost(normalizePost(targetWPPost));
+            setPost(normalizeExternalPost(targetWPPost, overrides));
           } else {
             setError('해당 기사를 찾을 수 없습니다.');
           }
@@ -109,7 +109,7 @@ export default function PostPage({ params }: PostPageProps) {
               .match(/[가-힣]{2,}|[A-Za-z0-9]{3,}/g) || []
           );
           const scoredList = listData
-            .filter((p) => p.id !== targetWPPost?.id)
+            .filter((p) => p.id !== targetWPPost?.id && !hiddenIds.has(p.id))
             .map((p, index) => {
               const categoryScore = (p.categories || []).some((id) => targetCategoryIds.has(id)) ? 30 : 0;
               const tagScore = (p.tags || []).filter((id) => targetTags.has(id)).length * 100;
@@ -118,12 +118,13 @@ export default function PostPage({ params }: PostPageProps) {
               return { post: p, score: categoryScore + tagScore + keywordScore, index };
             })
             .sort((a, b) => b.score - a.score || a.index - b.index)
-            .map(({ post: p }) => normalizePost(p));
+            .map(({ post: p }) => normalizeExternalPost(p, overrides));
           const normalizedList = scoredList;
           setRelatedPosts(normalizedList.slice(0, 5));
           setAllNewsPosts(
             allNewsData
-              .map((p) => normalizePost(p))
+              .filter((p) => !hiddenIds.has(p.id))
+              .map((p) => normalizeExternalPost(p, overrides))
               .filter((p) => p.id !== targetWPPost?.id)
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
           );

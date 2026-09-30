@@ -45,7 +45,16 @@ service cloud.firestore {
 
     match /hiddenExternalPosts/{postId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAdmin()
+        || (request.auth != null
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+
+    match /externalPostCategories/{postId} {
+      allow read: if true;
+      allow write: if isAdmin()
+        || (request.auth != null
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
     }
   }
 }
