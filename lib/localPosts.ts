@@ -32,8 +32,24 @@ export function normalizeLocalPost(id: string, data: Record<string, unknown>): N
   const date = toDateString(data.createdAt);
   const category = typeof data.category === 'string' ? data.category : 'local';
   const imageUrl = typeof data.imageUrl === 'string' && data.imageUrl ? data.imageUrl : '';
-  const bodyHtml = content.split(/\n\s*\n/).map((paragraph) => `<p>${linkifyText(escapeHtml(paragraph).replace(/\n/g, '<br />'))}</p>`).join('');
-  const imageHtml = imageUrl ? `<figure><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(typeof data.imageAlt === 'string' ? data.imageAlt : title)}" /><figcaption>${escapeHtml(title)}</figcaption></figure>` : '';
+  const imageUrls = Array.isArray(data.imageUrls)
+    ? data.imageUrls.filter((url): url is string => typeof url === 'string' && Boolean(url))
+    : imageUrl ? [imageUrl] : [];
+  const bodyHtml = content.split(/(\[사진\d+\])/g).map((part) => {
+    const marker = part.match(/^\[사진(\d+)\]$/);
+    if (marker) {
+      const photoUrl = imageUrls[Number(marker[1]) - 1];
+      return photoUrl
+        ? `<figure><img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(`${title} 사진 ${marker[1]}`)}" /></figure>`
+        : escapeHtml(part);
+    }
+    return part.split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean)
+      .map((paragraph) => `<p>${linkifyText(escapeHtml(paragraph).replace(/\n/g, '<br />'))}</p>`).join('');
+  }).join('');
+  const hasPhotoMarkers = /\[사진\d+\]/.test(content);
+  const imageHtml = imageUrl && !hasPhotoMarkers
+    ? `<figure><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(typeof data.imageAlt === 'string' ? data.imageAlt : title)}" /><figcaption>${escapeHtml(title)}</figcaption></figure>`
+    : '';
   return {
     id,
     slug: id,
