@@ -42,10 +42,37 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       try {
         setLoading(true);
         if (slug === 'opinion') {
-          const localPosts = await fetchPublishedLocalPosts();
+          const [categoriesResponse, hiddenIds, overrides, localPosts] = await Promise.all([
+            fetch(`${WP_POSTS_URL.replace('/posts', '/categories')}?slug=opinion`),
+            fetchHiddenExternalPostIds(),
+            fetchExternalCategoryOverrides(),
+            fetchPublishedLocalPosts(),
+          ]);
+          if (!categoriesResponse.ok) throw new Error(`Status ${categoriesResponse.status}`);
+          const categories = await categoriesResponse.json() as { id: number }[];
+          const opinionCategoryId = categories[0]?.id;
+          const endpoint = opinionCategoryId
+            ? `${WP_POSTS_URL}?_embed=1&categories=${opinionCategoryId}&per_page=100`
+            : `${WP_POSTS_URL}?_embed=1&per_page=100`;
+          const response = await fetch(endpoint);
+          if (!response.ok) throw new Error(`Status ${response.status}`);
+          const data = await response.json() as WPPost[];
+          const nativeOpinionIds = new Set(opinionCategoryId ? data.filter((post) => post.categories.includes(opinionCategoryId)).map((post) => post.id) : []);
+          const movedIds = [...overrides].filter(([, category]) => category === 'opinion').map(([id]) => id);
+          const movedPosts = (await Promise.all(Array.from({ length: Math.ceil(movedIds.length / 50) }, async (_, index) => {
+            const ids = movedIds.slice(index * 50, index * 50 + 50);
+            const result = await fetch(`${WP_POSTS_URL}?_embed=1&include=${ids.join(',')}&per_page=50`);
+            return result.ok ? await result.json() as WPPost[] : [];
+          }))).flat();
           if (isMounted) {
             setVisibleListCount(10);
-            setPosts(localPosts.filter((post) => post.categorySlug === 'opinion'));
+            const uniquePosts = new Map([...data, ...movedPosts].map((post) => [post.id, post]));
+            const external = [...uniquePosts.values()]
+              .filter((post) => !hiddenIds.has(post.id))
+              .map((post) => normalizeExternalPost(post, overrides))
+              .filter((post) => post.categorySlug === 'opinion' || nativeOpinionIds.has(Number(post.id)));
+            setPosts([...external, ...localPosts.filter((post) => post.categorySlug === 'opinion')]
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
           }
           return;
         }

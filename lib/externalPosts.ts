@@ -3,7 +3,7 @@ import { getDb, isFirebaseConfigured } from '@/lib/firebase';
 import { normalizePost } from '@/lib/wp';
 import { NormalizedPost, WPPost } from '@/types/post';
 
-export type ExternalCategory = 'local' | 'huss';
+export type ExternalCategory = 'local' | 'huss' | 'opinion';
 
 export async function fetchExternalCategoryOverrides(): Promise<Map<number, ExternalCategory>> {
   if (!isFirebaseConfigured) return new Map();
@@ -12,7 +12,7 @@ export async function fetchExternalCategoryOverrides(): Promise<Map<number, Exte
   snapshot.docs.forEach((item) => {
     const id = Number(item.id);
     const category = item.data().category;
-    if (Number.isInteger(id) && id > 0 && (category === 'local' || category === 'huss')) {
+    if (Number.isInteger(id) && id > 0 && (category === 'local' || category === 'huss' || category === 'opinion')) {
       categories.set(id, category);
     }
   });
@@ -23,6 +23,9 @@ export function normalizeExternalPost(post: WPPost, overrides: Map<number, Exter
   const normalized = normalizePost(post);
   const category = overrides.get(post.id);
   if (!category) return normalized;
+  if (category === 'opinion') {
+    return { ...normalized, categorySlug: 'opinion', categoryName: '오피니언' };
+  }
   return {
     ...normalized,
     categoryId: category === 'huss' ? 72 : 25,

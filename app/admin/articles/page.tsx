@@ -121,7 +121,7 @@ export default function AdminArticlesPage() {
     try {
       if (category === 'original') {
         await deleteDoc(reference);
-      } else if (category === 'local' || category === 'huss') {
+      } else if (category === 'local' || category === 'huss' || category === 'opinion') {
         await setDoc(reference, {
           category,
           updatedBy: user?.email || '',
@@ -199,6 +199,7 @@ export default function AdminArticlesPage() {
                           <option value="original">원본 분류</option>
                           <option value="local">로컬소식</option>
                           <option value="huss">대학소식</option>
+                          <option value="opinion">오피니언</option>
                         </select>
                         <button type="button" onClick={() => void toggleExternalArticle(post.id)} className={`rounded border px-3 py-2 text-xs font-bold ${hidden ? 'border-neutral-300' : 'border-red-200 text-red-700'}`}>{hidden ? '다시 표시' : '하모니넷에서 숨기기'}</button>
                       </div>
