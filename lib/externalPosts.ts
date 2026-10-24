@@ -22,9 +22,17 @@ export async function fetchExternalCategoryOverrides(): Promise<Map<number, Exte
 export function normalizeExternalPost(post: WPPost, overrides: Map<number, ExternalCategory>): NormalizedPost {
   const normalized = normalizePost(post);
   const category = overrides.get(post.id);
-  if (!category) return normalized;
   if (category === 'opinion') {
     return { ...normalized, categorySlug: 'opinion', categoryName: '오피니언' };
+  }
+  if (!category) {
+    const hasOpinionCategory = (post._embedded?.['wp:term'] || [])
+      .flat()
+      .some((term) => term.taxonomy === 'category' && term.slug === 'opinion');
+    if (hasOpinionCategory) {
+      return { ...normalized, categorySlug: 'opinion', categoryName: '오피니언' };
+    }
+    return normalized;
   }
   return {
     ...normalized,
