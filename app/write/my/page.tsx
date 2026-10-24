@@ -8,7 +8,21 @@ import { useAuth } from '@/components/AuthProvider';
 import { SectionHeader } from '@/components/SectionShell';
 import SiteFooter from '@/components/SiteFooter';
 
-type MyArticle = { id: string; title?: string; status?: string; category?: string; content?: string };
+type MyArticle = {
+  id: string;
+  title?: string;
+  status?: string;
+  category?: string;
+  content?: string;
+  createdAt?: string | { seconds?: number; toDate?: () => Date };
+};
+
+function getCreatedAtTime(value: MyArticle['createdAt']): number {
+  if (typeof value === 'string') return Date.parse(value) || 0;
+  if (!value) return 0;
+  if (typeof value.toDate === 'function') return value.toDate().getTime();
+  return typeof value.seconds === 'number' ? value.seconds * 1000 : 0;
+}
 
 export default function MyArticlesPage() {
   const { user, loading } = useAuth();
@@ -18,7 +32,11 @@ export default function MyArticlesPage() {
   useEffect(() => {
     if (!user) return;
     getDocs(query(collection(getDb(), 'localPosts'), where('authorId', '==', user.uid)))
-      .then((snapshot) => setArticles(snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as MyArticle))))
+      .then((snapshot) => {
+        const nextArticles = snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as MyArticle));
+        nextArticles.sort((a, b) => getCreatedAtTime(b.createdAt) - getCreatedAtTime(a.createdAt));
+        setArticles(nextArticles);
+      })
       .catch(() => setError('내 기사를 불러오지 못했습니다.'));
   }, [user]);
 
