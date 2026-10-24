@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { FormEvent, use, useEffect, useRef, useState } from 'react';
@@ -8,6 +9,8 @@ import { getDb, getStorageClient } from '@/lib/firebase';
 import { useAuth } from '@/components/AuthProvider';
 import { SectionHeader } from '@/components/SectionShell';
 import SiteFooter from '@/components/SiteFooter';
+
+const TRANSPARENT_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
 type EditPageProps = { params: Promise<{ id: string }> };
 
@@ -20,6 +23,7 @@ export default function EditArticlePage({ params }: EditPageProps) {
   const [status, setStatus] = useState<'draft' | 'pending' | 'published'>('published');
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [photoPreviewUrls, setPhotoPreviewUrls] = useState<string[]>([]);
   const contentRef = useRef<HTMLTextAreaElement>(null);
   const [ready, setReady] = useState(false);
   const [message, setMessage] = useState('');
@@ -43,6 +47,12 @@ export default function EditArticlePage({ params }: EditPageProps) {
       setReady(true);
     }).catch(() => setMessage('기사를 불러오지 못했습니다.'));
   }, [id, user]);
+
+  useEffect(() => {
+    const previewUrls = imageFiles.map((file) => URL.createObjectURL(file));
+    setPhotoPreviewUrls(previewUrls);
+    return () => previewUrls.forEach((url) => URL.revokeObjectURL(url));
+  }, [imageFiles]);
 
   function insertPhotoMarker(index: number) {
     const textarea = contentRef.current;
@@ -105,8 +115,8 @@ export default function EditArticlePage({ params }: EditPageProps) {
               <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => { const selectedFiles = Array.from(event.currentTarget.files || []); event.currentTarget.value = ''; setImageFiles((previous) => [...previous, ...selectedFiles]); }} className="block w-full rounded border border-neutral-300 px-3 py-2 text-sm" />
               <p className="mt-1 text-xs text-neutral-500">새 사진을 추가하고, 본문에서 사진을 넣을 위치에 커서를 둔 뒤 ‘본문에 삽입’을 누르세요.</p>
               {imageUrls.length + imageFiles.length > 0 && <ul className="mt-3 space-y-2">
-                {imageUrls.map((url, index) => <li key={`${url}-${index}`} className="flex flex-wrap items-center justify-between gap-2 rounded bg-neutral-50 px-3 py-2 text-sm"><span>사진 {index + 1}{index < imageUrls.length ? ' (기존)' : ''}</span><button type="button" onClick={() => insertPhotoMarker(index)} className="font-semibold text-red-700 hover:underline">본문에 삽입 [사진{index + 1}]</button></li>)}
-                {imageFiles.map((imageFile, index) => { const photoIndex = imageUrls.length + index; return <li key={`${imageFile.name}-${imageFile.lastModified}`} className="flex flex-wrap items-center justify-between gap-2 rounded bg-neutral-50 px-3 py-2 text-sm"><span>사진 {photoIndex + 1}: {imageFile.name}</span><button type="button" onClick={() => insertPhotoMarker(photoIndex)} className="font-semibold text-red-700 hover:underline">본문에 삽입 [사진{photoIndex + 1}]</button></li>; })}
+                {imageUrls.map((url, index) => <li key={`${url}-${index}`} className="flex items-center gap-3 rounded bg-neutral-50 px-3 py-2 text-sm"><Image src={url} alt={`기존 사진 ${index + 1}`} width={80} height={60} unoptimized className="h-14 w-20 shrink-0 rounded object-cover" /><span className="flex-1">사진 {index + 1} (기존)</span><button type="button" onClick={() => insertPhotoMarker(index)} className="font-semibold text-red-700 hover:underline">본문에 삽입 [사진{index + 1}]</button></li>)}
+                {imageFiles.map((imageFile, index) => { const photoIndex = imageUrls.length + index; return <li key={`${imageFile.name}-${imageFile.lastModified}-${index}`} className="flex items-center gap-3 rounded bg-neutral-50 px-3 py-2 text-sm"><Image src={photoPreviewUrls[index] || TRANSPARENT_IMAGE} alt={`첨부 사진 ${photoIndex + 1}`} width={80} height={60} unoptimized className="h-14 w-20 shrink-0 rounded object-cover" /><span className="min-w-0 flex-1 truncate">사진 {photoIndex + 1}: {imageFile.name}</span><button type="button" onClick={() => insertPhotoMarker(photoIndex)} className="font-semibold text-red-700 hover:underline">본문에 삽입 [사진{photoIndex + 1}]</button></li>; })}
               </ul>}
             </div>
             <label className="block"><span className="mb-2 block text-sm font-bold">본문</span><textarea ref={contentRef} value={content} onChange={(event) => setContent(event.target.value)} className="min-h-80 w-full rounded border border-neutral-300 px-4 py-3 text-sm leading-7" placeholder="사진을 넣으려면 [사진1] 같은 마커를 사용하세요." /></label>

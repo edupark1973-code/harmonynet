@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { FormEvent, useEffect, useRef, useState } from 'react';
@@ -8,6 +9,8 @@ import { getDb, getStorageClient } from '@/lib/firebase';
 import { useAuth } from '@/components/AuthProvider';
 import { SectionHeader } from '@/components/SectionShell';
 import SiteFooter from '@/components/SiteFooter';
+
+const TRANSPARENT_IMAGE = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
 export default function WritePage() {
   const { user, role, loading, firebaseConfigured, signIn, signOutUser } = useAuth();
@@ -18,11 +21,18 @@ export default function WritePage() {
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [photoPreviewUrls, setPhotoPreviewUrls] = useState<string[]>([]);
   const contentRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setStatus(role === 'writer' || role === 'admin' ? 'published' : 'pending');
   }, [role]);
+
+  useEffect(() => {
+    const previewUrls = imageFiles.map((file) => URL.createObjectURL(file));
+    setPhotoPreviewUrls(previewUrls);
+    return () => previewUrls.forEach((url) => URL.revokeObjectURL(url));
+  }, [imageFiles]);
 
   function insertPhotoMarker(index: number) {
     const textarea = contentRef.current;
@@ -128,7 +138,7 @@ export default function WritePage() {
             <div className="flex items-center justify-between text-xs text-neutral-500"><span>{user.displayName || user.email}</span><button type="button" onClick={() => signOutUser()} className="text-red-700 hover:underline">로그아웃</button></div>
             <label className="block"><span className="mb-2 block text-sm font-bold">제목</span><input value={title} onChange={(event) => setTitle(event.target.value)} className="w-full rounded border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-red-700" placeholder="기사 제목을 입력하세요" /></label>
             <label className="block"><span className="mb-2 block text-sm font-bold">분야</span><select value={category} onChange={(event) => setCategory(event.target.value)} className="rounded border border-neutral-300 px-4 py-3 text-sm"><option value="local">로컬소식</option><option value="huss">대학소식</option><option value="opinion">오피니언</option></select></label>
-            <div className="block"><span className="mb-2 block text-sm font-bold">사진</span><input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => { const selectedFiles = Array.from(event.currentTarget.files || []); event.currentTarget.value = ''; setImageFiles((previous) => [...previous, ...selectedFiles]); }} className="block w-full rounded border border-neutral-300 px-3 py-2 text-sm" /><p className="mt-1 text-xs text-neutral-500">여러 장을 선택한 뒤, 본문에서 사진을 넣을 위치에 커서를 두고 해당 사진의 ‘본문에 삽입’을 누르세요. 첫 사진은 대표 썸네일로 사용됩니다.</p>{imageFiles.length > 0 && <ul className="mt-3 space-y-2">{imageFiles.map((imageFile, index) => <li key={`${imageFile.name}-${imageFile.lastModified}-${index}`} className="flex flex-wrap items-center justify-between gap-2 rounded bg-neutral-50 px-3 py-2 text-sm"><span>사진 {index + 1}: {imageFile.name}</span><span className="flex gap-3"><button type="button" onClick={() => insertPhotoMarker(index)} className="font-semibold text-red-700 hover:underline">본문에 삽입 [사진{index + 1}]</button><button type="button" onClick={() => removePhoto(index)} className="text-neutral-500 hover:underline">삭제</button></span></li>)}</ul>}</div>
+            <div className="block"><span className="mb-2 block text-sm font-bold">사진</span><input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => { const selectedFiles = Array.from(event.currentTarget.files || []); event.currentTarget.value = ''; setImageFiles((previous) => [...previous, ...selectedFiles]); }} className="block w-full rounded border border-neutral-300 px-3 py-2 text-sm" /><p className="mt-1 text-xs text-neutral-500">여러 장을 선택한 뒤, 본문에서 사진을 넣을 위치에 커서를 두고 해당 사진의 ‘본문에 삽입’을 누르세요. 첫 사진은 대표 썸네일로 사용됩니다.</p>{imageFiles.length > 0 && <ul className="mt-3 space-y-2">{imageFiles.map((imageFile, index) => <li key={`${imageFile.name}-${imageFile.lastModified}-${index}`} className="flex items-center gap-3 rounded bg-neutral-50 px-3 py-2 text-sm"><Image src={photoPreviewUrls[index] || TRANSPARENT_IMAGE} alt={`첨부 사진 ${index + 1}`} width={80} height={60} unoptimized className="h-14 w-20 shrink-0 rounded object-cover" /><span className="min-w-0 flex-1 truncate">사진 {index + 1}: {imageFile.name}</span><span className="flex shrink-0 gap-3"><button type="button" onClick={() => insertPhotoMarker(index)} className="font-semibold text-red-700 hover:underline">본문에 삽입 [사진{index + 1}]</button><button type="button" onClick={() => removePhoto(index)} className="text-neutral-500 hover:underline">삭제</button></span></li>)}</ul>}</div>
             <label className="block"><span className="mb-2 block text-sm font-bold">본문</span><textarea ref={contentRef} value={content} onChange={(event) => setContent(event.target.value)} className="min-h-80 w-full rounded border border-neutral-300 px-4 py-3 text-sm leading-7 outline-none focus:border-red-700" placeholder="기사 본문을 입력하세요. 사진을 넣으려면 [사진1] 같은 마커를 사용하세요." /></label>
             <div className="flex flex-wrap items-center gap-3"><select value={status} onChange={(event) => setStatus(event.target.value as 'draft' | 'pending' | 'published')} className="rounded border border-neutral-300 px-3 py-2 text-sm">{(role === 'writer' || role === 'admin') && <option value="published">바로 공개</option>}<option value="pending">검토 요청</option><option value="draft">임시저장</option></select><button disabled={saving} className="rounded bg-red-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-800 disabled:opacity-50">{saving ? '저장 중...' : '기사 저장'}</button></div>
             {message && <p className="text-sm text-red-700">{message}</p>}
