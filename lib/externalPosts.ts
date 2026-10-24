@@ -4,6 +4,7 @@ import { normalizePost } from '@/lib/wp';
 import { NormalizedPost, WPPost } from '@/types/post';
 
 export type ExternalCategory = 'local' | 'huss' | 'opinion';
+export const EXTERNAL_OPINION_CATEGORY_ID = 328;
 
 export async function fetchExternalCategoryOverrides(): Promise<Map<number, ExternalCategory>> {
   if (!isFirebaseConfigured) return new Map();
@@ -28,8 +29,8 @@ export function normalizeExternalPost(post: WPPost, overrides: Map<number, Exter
   if (!category) {
     const hasOpinionCategory = (post._embedded?.['wp:term'] || [])
       .flat()
-      .some((term) => term.taxonomy === 'category' && term.slug === 'opinion');
-    if (hasOpinionCategory) {
+      .some((term) => term.taxonomy === 'category' && (term.slug === 'opinion' || term.name === '오피니언'));
+    if (post.categories.includes(EXTERNAL_OPINION_CATEGORY_ID) || hasOpinionCategory) {
       return { ...normalized, categorySlug: 'opinion', categoryName: '오피니언' };
     }
     return normalized;

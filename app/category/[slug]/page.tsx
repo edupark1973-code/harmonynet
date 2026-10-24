@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { WPPost, NormalizedPost } from '@/types/post';
 import { fetchHiddenExternalPostIds, fetchPublishedLocalPosts } from '@/lib/localPosts';
-import { fetchExternalCategoryOverrides, normalizeExternalPost } from '@/lib/externalPosts';
+import { EXTERNAL_OPINION_CATEGORY_ID, fetchExternalCategoryOverrides, normalizeExternalPost } from '@/lib/externalPosts';
 import { SectionFooter, SectionHeader } from '@/components/SectionShell';
 
 interface CategoryPageProps {
@@ -42,15 +42,12 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       try {
         setLoading(true);
         if (slug === 'opinion') {
-          const [categoriesResponse, hiddenIds, overrides, localPosts] = await Promise.all([
-            fetch(`${WP_POSTS_URL.replace('/posts', '/categories')}?slug=opinion`),
+          const [hiddenIds, overrides, localPosts] = await Promise.all([
             fetchHiddenExternalPostIds(),
             fetchExternalCategoryOverrides(),
             fetchPublishedLocalPosts(),
           ]);
-          if (!categoriesResponse.ok) throw new Error(`Status ${categoriesResponse.status}`);
-          const categories = await categoriesResponse.json() as { id: number }[];
-          const opinionCategoryId = categories[0]?.id;
+          const opinionCategoryId = EXTERNAL_OPINION_CATEGORY_ID;
           const endpoint = opinionCategoryId
             ? `${WP_POSTS_URL}?_embed=1&categories=${opinionCategoryId}&per_page=100`
             : `${WP_POSTS_URL}?_embed=1&per_page=100`;
